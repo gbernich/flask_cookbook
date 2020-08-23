@@ -5,7 +5,8 @@
 	<meta content="utf-8" http-equiv="encoding">
     <meta name="viewport" content="width=device-width, initial-scale=0.95">
     <!-- <link rel="stylesheet" type="text/css" href="bootstrap.min.css"> -->
-    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" text="text/css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <!-- <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" text="text/css"> -->
 </head>
 
 <!-- <script type="text/javascript">
@@ -113,7 +114,7 @@ function updateTable() {
         <tr><td>Recipe</td><td>Prep Time</td><td>Cook Time</td><td>Calories</td></tr>
         {% for recipe in recipes %}
             <tr>
-            <td><a href='http://cookbook.local/".$phpFile."?id=".$row[id]."'>{{ recipe.name }}</a></td>";
+            <td><a href="{{ url_for('.display', id = recipe.id) }}">{{ recipe.name }}</a></td>
             <td>{{ recipe.prep_time }}</td>
             <td>{{ recipe.cook_time }}</td>
             <td>{{ recipe.calories }}</td>

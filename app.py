@@ -63,31 +63,37 @@ class Recipe(db.Model):
 
 @app.route('/')
 def show_all():
-   recipes = Recipe.query.all()
-   return render_template('index.html', recipes = recipes )
+    recipes = Recipe.query.all()
+    return render_template('index.html', recipes = recipes )
 
-@app.route('/new', methods = ['GET', 'POST'])
-def new():
-   if request.method == 'POST':
-      if not request.form['name'] or not request.form['city'] or not request.form['addr']:
-         flash('Please enter all the fields', 'error')
-      else:
-         student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
+@app.route('/display')
+def display():
+    id = request.args.get('id')
+    recipe = Recipe.query.get(id)
+    return render_template('displayLarge.html', recipe = recipe )
+   
+# @app.route('/new', methods = ['GET', 'POST'])
+# def new():
+#    if request.method == 'POST':
+#       if not request.form['name'] or not request.form['city'] or not request.form['addr']:
+#          flash('Please enter all the fields', 'error')
+#       else:
+#          student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
 
-         tmpClubs = []
-         for newclub in request.form['clubs'].split(', '):
-            club = studentclubs(newclub, student)
-            tmpClubs.append(club)
-         student.clubs.extend(tmpClubs)
+#          tmpClubs = []
+#          for newclub in request.form['clubs'].split(', '):
+#             club = studentclubs(newclub, student)
+#             tmpClubs.append(club)
+#          student.clubs.extend(tmpClubs)
 
-         db.session.add(student)
-         db.session.add_all(tmpClubs)
-         db.session.add(student)
-         db.session.commit()
+#          db.session.add(student)
+#          db.session.add_all(tmpClubs)
+#          db.session.add(student)
+#          db.session.commit()
 
-         flash('Record was successfully added')
-         return redirect(url_for('show_all'))
-   return render_template('new.html')
+#          flash('Record was successfully added')
+#          return redirect(url_for('show_all'))
+#    return render_template('new.html')
 
 if __name__ == '__main__':
    db.create_all()

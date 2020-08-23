@@ -1,0 +1,86 @@
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=0.95">
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+</head>
+
+<body style="margin-left:0; padding:10">
+
+<!-- <?php
+    include 'util.php';
+
+    // Create connection
+    $conn = connect();
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Get Recipe Data
+    $id           = $_GET['id'];
+    $recipe       = query_recipe($conn, $id);
+    $compliances  = query_recipe_compliances($conn, $id);
+    $ingredients  = query_recipe_ingredients($conn, $id);
+    $instructions = query_recipe_instructions($conn, $id);
+    $log_entries  = query_recipe_log($conn, $id);
+
+    // New Log Entry
+    if(isset($_POST['submit']))
+    {
+        $sql    = "INSERT INTO RecipeLog (recipe_id, cook_date, notes) VALUES (".$id.", NOW(),'".$_POST['notes']."');";
+        $result = $conn->query($sql);
+        header("Refresh:0");
+    }
+
+    $conn->close();
+?> -->
+
+<div class="row">
+    <a href="/index.php" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
+    <?php  echo "<a href='/display.php?id=".$id."' class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>";
+           echo "<a href='/editRecipe.php?id=".$id."' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>"; ?>
+</div>
+<div class="row">
+    <div class="col">
+    
+        <h1>{{ recipe.name }}</h1>
+        <h5>{{ recipe.description }}</h5><br>
+
+<!--             if ($compliances->num_rows > 0) {
+                echo "<div class='row'>";
+                while($row = $compliances->fetch_assoc()) {
+                    echo "<h4><span class='label label-primary' style='background-color: #777; border-radius: .25em; padding: .2em .6em .3em; margin-left:15px'>".$row['compliance']."</span></h4>";
+                }
+                echo "</div><br>";
+            }
+
+            echo "<h5>Serves ".$recipe[servings]."</h5>";
+            echo "<h5>Prep Time ".$recipe[prep_time]." </h5>";
+            echo "<h5>Cook Time ".$recipe[cook_time]." </h5>";
+            echo "<h5>Total Time ".$recipe[total_time]." </h5>"; -->
+        
+    </div>
+</div>
+<div class="row">
+    <div class="col-3"><?php display_recipe_ingredients($ingredients);   ?></div>
+    <div class="col-8"><?php display_recipe_instructions($instructions); ?></div>
+</div>
+<div class="row">
+    <div class="col"><?php display_recipe_log($log_entries); ?></div>
+</div>
+
+
+
+<br>
+<h3>Log Entry</h3>
+
+<form method="post" action="">
+        <textarea cols="80" placeholder="Enter a note about your experience." rows="3" name="notes" maxlength="350" required></textarea><br><br>
+        <button type="submit" name="submit" class="btn btn-primary">Put it in the books!</button>
+</form>
+
+</body>
+</html>
