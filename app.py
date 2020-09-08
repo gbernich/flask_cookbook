@@ -12,6 +12,7 @@ class Recipe(db.Model):
    id          = db.Column(db.Integer, primary_key = True)
    name        = db.Column(db.String(80), nullable=False)
    description = db.Column(db.String(500), nullable=True)
+   servings    = db.Column(db.Integer, nullable=False)
    prep_time   = db.Column(db.Integer, nullable=False)
    cook_time   = db.Column(db.Integer, nullable=False)
    total_time  = db.Column(db.Integer, nullable=False)
@@ -28,8 +29,11 @@ class Recipe(db.Model):
    sugar         = db.Column(db.Integer, nullable=True)
    protein       = db.Column(db.Integer, nullable=True)
 
-   ingredients   = db.relationship('RecipeIngredient', backref="Recipe")#, lazy='dynamic')
-#   clubs = db.relationship('studentclubs', backref="students")#, lazy='dynamic')
+   compliances   = db.relationship('RecipeCompliance',  backref="Recipe")
+   ingredients   = db.relationship('RecipeIngredient',  backref="Recipe")
+   instructions  = db.relationship('RecipeInstruction', backref="Recipe")
+   logs          = db.relationship('RecipeLog',         backref="Recipe")
+   #   clubs = db.relationship('studentclubs', backref="students")#, lazy='dynamic')
 
    def __init__(self, name, description, prep_time, cook_time, total_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
       self.name          = name
@@ -84,9 +88,11 @@ class Preparation(db.Model):
 
 class RecipeCompliance(db.Model):
     id            = db.Column(db.Integer, primary_key = True)
-    recipe_id     = db.Column(db.Integer, db.ForeignKey("recipe.id"), nullable=False)
-    compliance_id = db.Column(db.Integer, db.ForeignKey("compliance.id"), nullable=False)
+    recipe_id     = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
+    compliance_id = db.Column(db.Integer, db.ForeignKey(Compliance.id), nullable=False)
 
+    compliance    = db.relationship('Compliance', backref="RecipeCompliance")
+    
     def __init__(self, recipe_id, compliance_id):
         self.recipe_id     = recipe_id
         self.compliance_id = compliance_id
@@ -101,6 +107,8 @@ class RecipeIngredient(db.Model):
     amount_whole       = db.Column(db.Integer, nullable=True)
     amount_numerator   = db.Column(db.Integer, nullable=True)
     amount_denominator = db.Column(db.Integer, nullable=True)
+    
+    ingredient         = db.relationship('Ingredient', backref="RecipeIngredient")
 
     def __init__(self, recipe_id, ingredient_id, measure_id, preparation_id, amount_whole, amount_numerator, amount_denominator):
         self.recipe_id          = recipe_id
@@ -153,8 +161,6 @@ def show_all():
 def display():
     id = request.args.get('id')
     recipe = Recipe.query.get(id)
-    # for ing in recipe.ingredients:
-    #     print(ing.name)
     return render_template('displayLarge.html', recipe = recipe )
    
 # @app.route('/new', methods = ['GET', 'POST'])
