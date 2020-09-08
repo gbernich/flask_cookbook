@@ -69,7 +69,7 @@
     <div class="col-3"><br>
         <ul style='list-style-type: none; padding-left: 0'>
             {% for i in recipe.ingredients %}
-                <li>{{ i.ingredient.name }}</li>
+                <li>{{ i.getString() }}</li>
             {% endfor %}
         </ul>
     </div>
