@@ -49,40 +49,50 @@
     
         <h1>{{ recipe.name }}</h1>
         <h5>{{ recipe.description }}</h5><br>
+        
+        <div class='row'>
+            {% for c in recipe.compliances %}
+                <h4><span class='label label-primary' style='background-color: #777; border-radius: .25em; padding: .2em .6em .3em; margin-left:15px'>{{ c.compliance.name }}</span></h4>
+            {% endfor %}
+        </div><br>
 
-<!--             if ($compliances->num_rows > 0) {
-                echo "<div class='row'>";
-                while($row = $compliances->fetch_assoc()) {
-                    echo "<h4><span class='label label-primary' style='background-color: #777; border-radius: .25em; padding: .2em .6em .3em; margin-left:15px'>".$row['compliance']."</span></h4>";
-                }
-                echo "</div><br>";
-            }
-
-            echo "<h5>Serves ".$recipe[servings]."</h5>";
-            echo "<h5>Prep Time ".$recipe[prep_time]." </h5>";
-            echo "<h5>Cook Time ".$recipe[cook_time]." </h5>";
-            echo "<h5>Total Time ".$recipe[total_time]." </h5>"; -->
+        <h5>Serves {{ recipe.servings }}</h5>
+        <h5>Prep Time {{ recipe.prep_time }} </h5>
+        <h5>Cook Time {{ recipe.cook_time }} </h5>
+        <h5>Total Time {{ recipe.total_time }} </h5>
         
     </div>
 </div>
+
 <div class="row">
-    <div class="col-3">
-        <br>
-
-        <h3>Ingredients</h3>
-        <ul style='list-style-type: none; padding-left: 0'>";
-
-        {% for ingredient in recipe.ingredients %}
-            <li>{{ ingredient }}</li>
-        {% endfor %}
-            
-
+    
+    <div class="col-3"><br>
+        <ul style='list-style-type: none; padding-left: 0'>
+            {% for i in recipe.ingredients %}
+                <li>{{ i.ingredient.name }}</li>
+            {% endfor %}
         </ul>
     </div>
-    <!-- <div class="col-8"><?php display_recipe_instructions($instructions); ?></div> -->
+    
+    <div class="col-8"><br>
+        <ol style='padding-left: 15px'>
+            {% for i in recipe.instructions %}
+                <li>{{ i.instruction }}</li>
+            {% endfor %}
+        </ol>    
+    </div>
+    
 </div>
+
 <div class="row">
-    <!-- <div class="col"><?php display_recipe_log($log_entries); ?></div> -->
+    <div class="col"><br>
+        <table class='table table-hover' style='table-layout: auto;'>
+        <tr><th>Date</th><th>Notes</th></tr>
+            {% for log in recipe.logs %}
+                <tr><td>{{ log.cook_date }}</td><td>{{ log.notes }}</td></tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 
 
