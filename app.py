@@ -108,7 +108,9 @@ class RecipeIngredient(db.Model):
     amount_numerator   = db.Column(db.Integer, nullable=True)
     amount_denominator = db.Column(db.Integer, nullable=True)
     
-    ingredient         = db.relationship('Ingredient', backref="RecipeIngredient")
+    ingredient         = db.relationship('Ingredient',  backref="RecipeIngredient")
+    measure            = db.relationship('Measure',     backref="RecipeIngredient")
+    preparation        = db.relationship('Preparation', backref="RecipeIngredient")
 
     def __init__(self, recipe_id, ingredient_id, measure_id, preparation_id, amount_whole, amount_numerator, amount_denominator):
         self.recipe_id          = recipe_id
@@ -119,6 +121,25 @@ class RecipeIngredient(db.Model):
         self.amount_numerator   = amount_numerator
         self.amount_denominator = amount_denominator
 
+    def __str__(self):
+        return "Hello"
+
+    def getAmountString(self):
+        if (self.amount_numerator == 0 or self.amount_denominator == 0):
+            return str(self.amount_whole)
+        elif (self.amount_whole == 0):
+            return str(self.amount_numerator) + "/" + str(self.amount_denominator)
+        else:
+            return str(self.amount_whole) + " " + str(self.amount_numerator) + "/" + str(self.amount_denominator)
+        
+    def getPreparationString(self):
+        if (self.preparation == None or self.preparation.name == " "):
+            return ""
+        else:
+            return " - " + self.preparation.name
+            
+    def getString(self):
+        return self.getAmountString() + " " + self.measure.name + " " + self.ingredient.name + " " + self.getPreparationString()
 
 class RecipeInstruction(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
