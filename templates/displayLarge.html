@@ -39,11 +39,11 @@
 ?> -->
 
 <div class="row">
-    <a href="/index.php" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
-    <?php  echo "<a href='/display.php?id=".$id."' class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>";
-           echo "<a href='/editRecipe.php?id=".$id."' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>"; ?>
+    <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
+    <a href='/display.php?id="{{ recipe.id }}"' class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+    <a href='/editRecipe.php?id="{{ recipe.id }}"' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
 </div>
-<h3>{{ url_for('static', filename='bootstrap.min.css') }}</h3>
+
 <div class="row">
     <div class="col">
     
@@ -66,11 +66,23 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-3"><?php display_recipe_ingredients($ingredients);   ?></div>
-    <div class="col-8"><?php display_recipe_instructions($instructions); ?></div>
+    <div class="col-3">
+        <br>
+
+        <h3>Ingredients</h3>
+        <ul style='list-style-type: none; padding-left: 0'>";
+
+        {% for ingredient in recipe.ingredients %}
+            <li>{{ ingredient }}</li>
+        {% endfor %}
+            
+
+        </ul>
+    </div>
+    <!-- <div class="col-8"><?php display_recipe_instructions($instructions); ?></div> -->
 </div>
 <div class="row">
-    <div class="col"><?php display_recipe_log($log_entries); ?></div>
+    <!-- <div class="col"><?php display_recipe_log($log_entries); ?></div> -->
 </div>
 
 
