@@ -28,7 +28,7 @@ class Recipe(db.Model):
    sugar         = db.Column(db.Integer, nullable=True)
    protein       = db.Column(db.Integer, nullable=True)
 
-
+   ingredients   = db.relationship('RecipeIngredient', backref="Recipe")#, lazy='dynamic')
 #   clubs = db.relationship('studentclubs', backref="students")#, lazy='dynamic')
 
    def __init__(self, name, description, prep_time, cook_time, total_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
@@ -50,7 +50,90 @@ class Recipe(db.Model):
       self.protein       = protein
 #      self.clubs = []
 
+class Compliance(db.Model):
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(50), nullable=True)
+    
+    def __init__(self, name):
+        self.name = name
+        
+        
+class Ingredient(db.Model):
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(100), nullable=False)
+    
+    def __init__(self, name):
+        self.name = name
+        
+        
+class Measure(db.Model):
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(30), nullable=True)
+    
+    def __init__(self, name):
+        self.name = name
+        
+        
+class Preparation(db.Model):
+    id   = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(150), nullable=False)
+    
+    def __init__(self, name):
+        self.name = name
 
+
+class RecipeCompliance(db.Model):
+    id            = db.Column(db.Integer, primary_key = True)
+    recipe_id     = db.Column(db.Integer, db.ForeignKey("recipe.id"), nullable=False)
+    compliance_id = db.Column(db.Integer, db.ForeignKey("compliance.id"), nullable=False)
+
+    def __init__(self, recipe_id, compliance_id):
+        self.recipe_id     = recipe_id
+        self.compliance_id = compliance_id
+
+
+class RecipeIngredient(db.Model):
+    id                 = db.Column(db.Integer, primary_key = True)
+    recipe_id          = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
+    ingredient_id      = db.Column(db.Integer, db.ForeignKey(Ingredient.id), nullable=False)
+    measure_id         = db.Column(db.Integer, db.ForeignKey(Measure.id), nullable=True)
+    preparation_id     = db.Column(db.Integer, db.ForeignKey(Preparation.id), nullable=True)
+    amount_whole       = db.Column(db.Integer, nullable=True)
+    amount_numerator   = db.Column(db.Integer, nullable=True)
+    amount_denominator = db.Column(db.Integer, nullable=True)
+
+    def __init__(self, recipe_id, ingredient_id, measure_id, preparation_id, amount_whole, amount_numerator, amount_denominator):
+        self.recipe_id          = recipe_id
+        self.ingredient_id      = ingredient_id
+        self.measure_id         = measure_id
+        self.preparation_id     = preparation_id 
+        self.amount_whole       = amount_whole
+        self.amount_numerator   = amount_numerator
+        self.amount_denominator = amount_denominator
+
+
+class RecipeInstruction(db.Model):
+    id          = db.Column(db.Integer, primary_key = True)
+    recipe_id   = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
+    instruction = db.Column(db.String(320), nullable=True)
+
+    def __init__(self, recipe_id, instruction):
+        self.recipe_id   = recipe_id
+        self.instruction = instruction
+
+
+class RecipeLog(db.Model):
+    id         = db.Column(db.Integer, primary_key = True)
+    recipe_id  = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
+    cook_date  = db.Column(db.Date())
+    notes      = db.Column(db.String(350), nullable=True)
+
+    def __init__(self, recipe_id, cook_date, notes):
+        self.recipe_id = recipe_id
+        self.cook_date = cook_date
+        self.notes     = notes
+        
+        
 # class studentclubs(db.Model):
 #    id = db.Column(db.Integer, primary_key=True)
 #    club = db.Column(db.String(100))
@@ -70,6 +153,8 @@ def show_all():
 def display():
     id = request.args.get('id')
     recipe = Recipe.query.get(id)
+    # for ing in recipe.ingredients:
+    #     print(ing.name)
     return render_template('displayLarge.html', recipe = recipe )
    
 # @app.route('/new', methods = ['GET', 'POST'])
