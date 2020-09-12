@@ -180,9 +180,11 @@ def show_all():
 
 @app.route('/display')
 def display():
-    id = request.args.get('id')
-    recipe = Recipe.query.get(id)
-    return render_template('displayLarge.html', recipe = recipe )
+    id         = request.args.get('id')
+    is_mobile = request.args.get('is_mobile')
+    print(is_mobile)
+    recipe     = Recipe.query.get(id)
+    return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile )
    
 # @app.route('/new', methods = ['GET', 'POST'])
 # def new():

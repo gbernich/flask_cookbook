@@ -40,7 +40,12 @@
 
 <div class="row">
     <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
-    <a href='/display.php?id="{{ recipe.id }}"' class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+    
+    {% if is_mobile == "1" %}
+        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 0) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+    {% else %}
+        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 1) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+    {% endif %}
     <a href='/editRecipe.php?id="{{ recipe.id }}"' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
 </div>
 
@@ -73,6 +78,11 @@
             {% endfor %}
         </ul>
     </div>
+    
+{% if is_mobile == "1" %}
+</div>
+<div class="row">
+{% endif %}
     
     <div class="col-8"><br>
         <ol style='padding-left: 15px'>
