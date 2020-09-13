@@ -182,9 +182,28 @@ def show_all():
 def display():
     id         = request.args.get('id')
     is_mobile = request.args.get('is_mobile')
-    print(is_mobile)
     recipe     = Recipe.query.get(id)
     return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile )
+
+@app.route('/add', methods = ['GET', 'POST'])
+def add():
+    if request.method == 'POST':
+        # student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
+
+        # tmpClubs = []
+        # for newclub in request.form['clubs'].split(', '):
+        #     club = studentclubs(newclub, student)
+        #     tmpClubs.append(club)
+        # student.clubs.extend(tmpClubs)
+
+        # db.session.add(student)
+        # db.session.add_all(tmpClubs)
+        # db.session.add(student)
+        # db.session.commit()
+
+        flash('Recipe was successfully added!')
+        return show_all()
+    return render_template('addRecipe.html')
    
 # @app.route('/new', methods = ['GET', 'POST'])
 # def new():
