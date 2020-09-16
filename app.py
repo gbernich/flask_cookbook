@@ -78,6 +78,22 @@ class Compliance(db.Model):
             #print("Found! id: " + str(c.id), "name: " + c.name)
             return c.id
         
+    def getComplianceByName(name):
+        #print("getComplianceID: " + name)
+        c = Compliance.query.filter_by(name=name).first()
+        if c == None:
+            # Add a new compliance and return ID
+            new = Compliance(name)
+            #print("new compliance:" + new.name)
+            db.session.add(new)
+            db.session.commit()
+            c = Compliance.query.filter_by(name=name).first()
+            #print("Newest: id: " + str(c.id), "name: " + c.name)
+            return c
+        else:
+            #print("Found! id: " + str(c.id), "name: " + c.name)
+            return c
+        
         
 class Ingredient(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
@@ -206,24 +222,35 @@ def display():
 def add():
     if request.method == 'POST':
         
+        # Clean form data
+        form = {}
+        for field in request.form:
+            form[field] = request.form[field].strip()
+            if(form[field] == ''):
+                form[field] = None
+            #print("Key : {} , Value : {}".format(field, request.form[field]))
+        
         # Create recipe object
-        recipe = Recipe(request.form['name'], request.form['description'], \
-                        request.form['servings'], request.form['prep_time'], \
-                        request.form['cook_time'], request.form['hot_cold'], \
-                        request.form['meal_type'], request.form['calories'], \
-                        request.form['total_fat'], request.form['saturated_fat'], \
-                        request.form['cholesterol'], request.form['sodium'], \
-                        request.form['carbohydrates'], request.form['fiber'], \
-                        request.form['sugar'], request.form['protein'])
+        recipe = Recipe(form['name'], form['description'], \
+                        form['servings'], form['prep_time'], \
+                        form['cook_time'], form['hot_cold'], \
+                        form['meal_type'], form['calories'], \
+                        form['total_fat'], form['saturated_fat'], \
+                        form['cholesterol'], form['sodium'], \
+                        form['carbohydrates'], form['fiber'], \
+                        form['sugar'], form['protein'])
 
         # check if compliances already exist
-        tmpCompliances = []
-        for c in request.form['compliances'].strip().lower().split('\n'):
-            print("name: " + c.strip() + " length: " + str(len(c.strip())))
-            print(str(Compliance.getComplianceID(c.strip())))
+        recipeCompliances = []
+        for c in form['compliances'].strip().lower().split('\n'):
+            compliance = Compliance.getComplianceByName(c.strip())
+            recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
         
         # link these compliances to this recipe
-        
+        recipe.compliances = recipeCompliances
+        db.session.add_all(recipeCompliances)
+        db.session.add(recipe)
+        db.session.commit()
         
         # student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
 
