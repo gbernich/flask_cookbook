@@ -35,12 +35,13 @@ class Recipe(db.Model):
    logs          = db.relationship('RecipeLog',         backref="Recipe")
    #   clubs = db.relationship('studentclubs', backref="students")#, lazy='dynamic')
 
-   def __init__(self, name, description, prep_time, cook_time, total_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
+   def __init__(self, name, description, servings, prep_time, cook_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
       self.name          = name
       self.description   = description
+      self.servings      = servings
       self.prep_time     = prep_time
       self.cook_time     = cook_time
-      self.total_time    = total_time
+      self.total_time    = str(int(self.prep_time) + int(self.cook_time))
       self.hot_cold      = hot_cold
       self.meal_type     = meal_type
       self.calories      = calories
@@ -60,6 +61,22 @@ class Compliance(db.Model):
     
     def __init__(self, name):
         self.name = name
+        
+    def getComplianceID(name):
+        #print("getComplianceID: " + name)
+        c = Compliance.query.filter_by(name=name).first()
+        if c == None:
+            # Add a new compliance and return ID
+            new = Compliance(name)
+            #print("new compliance:" + new.name)
+            db.session.add(new)
+            db.session.commit()
+            c = Compliance.query.filter_by(name=name).first()
+            #print("Newest: id: " + str(c.id), "name: " + c.name)
+            return c.id
+        else:
+            #print("Found! id: " + str(c.id), "name: " + c.name)
+            return c.id
         
         
 class Ingredient(db.Model):
@@ -188,6 +205,26 @@ def display():
 @app.route('/add', methods = ['GET', 'POST'])
 def add():
     if request.method == 'POST':
+        
+        # Create recipe object
+        recipe = Recipe(request.form['name'], request.form['description'], \
+                        request.form['servings'], request.form['prep_time'], \
+                        request.form['cook_time'], request.form['hot_cold'], \
+                        request.form['meal_type'], request.form['calories'], \
+                        request.form['total_fat'], request.form['saturated_fat'], \
+                        request.form['cholesterol'], request.form['sodium'], \
+                        request.form['carbohydrates'], request.form['fiber'], \
+                        request.form['sugar'], request.form['protein'])
+
+        # check if compliances already exist
+        tmpCompliances = []
+        for c in request.form['compliances'].strip().lower().split('\n'):
+            print("name: " + c.strip() + " length: " + str(len(c.strip())))
+            print(str(Compliance.getComplianceID(c.strip())))
+        
+        # link these compliances to this recipe
+        
+        
         # student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
 
         # tmpClubs = []
