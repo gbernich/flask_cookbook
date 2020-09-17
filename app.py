@@ -1,5 +1,6 @@
 from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
+import re
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
@@ -102,6 +103,17 @@ class Ingredient(db.Model):
     def __init__(self, name):
         self.name = name
         
+    def getIngredientByName(name):
+        i = Ingredient.query.filter_by(name=name).first()
+        if i == None:
+            # Add a new compliance and return ID
+            new = Ingredient(name)
+            db.session.add(new)
+            db.session.commit()
+            return Ingredient.query.filter_by(name=name).first()
+        else:
+            # Return the Ingredient that was found
+            return i
         
 class Measure(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
@@ -110,6 +122,18 @@ class Measure(db.Model):
     def __init__(self, name):
         self.name = name
         
+    def getMeasureByName(name):
+        m = Measure.query.filter_by(name=name).first()
+        if m == None:
+            # Add a new compliance and return ID
+            new = Measure(name)
+            db.session.add(new)
+            db.session.commit()
+            return Measure.query.filter_by(name=name).first()
+        else:
+            # Return the Measure that was found
+            return m
+        
         
 class Preparation(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
@@ -117,6 +141,18 @@ class Preparation(db.Model):
     
     def __init__(self, name):
         self.name = name
+        
+    def getPreparationByName(name):
+        p = Preparation.query.filter_by(name=name).first()
+        if p == None:
+            # Add a new compliance and return ID
+            new = Preparation(name)
+            db.session.add(new)
+            db.session.commit()
+            return Preparation.query.filter_by(name=name).first()
+        else:
+            # Return the Measure that was found
+            return p
 
 
 class RecipeCompliance(db.Model):
@@ -157,6 +193,40 @@ class RecipeIngredient(db.Model):
     def __str__(self):
         return "Hello"
 
+    def getRecipeIngredientFromText(text, recipeID):
+        components  = text.split(',')
+        amount      = components[0].strip()
+        measure     = components[1].strip()
+        ingredient  = components[2].strip()
+        preparation = ' '
+        if (len(components) > 3):
+            preparation = components[3].strip()
+            
+        amountComponents = re.split('\s+|/', amount)
+        if (len(amountComponents) == 3):
+            amountWhole = int(amountComponents[0])
+            amountNum   = int(amountComponents[1])
+            amountDen   = int(amountComponents[2])
+        elif (len(amountComponents) == 2):
+            amountWhole = 0
+            amountNum   = int(amountComponents[0])
+            amountDen   = int(amountComponents[1])
+        else:
+            amountWhole = int(amountComponents[0])
+            amountNum   = 0
+            amountDen   = 0
+            
+        # handle measure
+        measure = Measure.getMeasureByName(measure)
+        
+        # handle ingredient
+        ingredient = Ingredient.getIngredientByName(ingredient)
+        
+        # handle preparation
+        preparation = Preparation.getPreparationByName(preparation)
+        
+        return RecipeIngredient(recipeID, ingredient.id, measure.id, preparation.id, amountWhole, amountNum, amountDen)
+            
     def getAmountString(self):
         if (self.amount_numerator == 0 or self.amount_denominator == 0):
             return str(self.amount_whole)
@@ -173,7 +243,7 @@ class RecipeIngredient(db.Model):
             
     def getString(self):
         return self.getAmountString() + " " + self.measure.name + " " + self.ingredient.name + " " + self.getPreparationString()
-
+        
 class RecipeInstruction(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
     recipe_id   = db.Column(db.Integer, db.ForeignKey(Recipe.id), nullable=False)
@@ -228,7 +298,6 @@ def add():
             form[field] = request.form[field].strip()
             if(form[field] == ''):
                 form[field] = None
-            #print("Key : {} , Value : {}".format(field, request.form[field]))
         
         # Create recipe object
         recipe = Recipe(form['name'], form['description'], \
@@ -240,33 +309,39 @@ def add():
                         form['carbohydrates'], form['fiber'], \
                         form['sugar'], form['protein'])
 
-        # check if compliances already exist
+        # handle compliances
         recipeCompliances = []
         for c in form['compliances'].strip().lower().split('\n'):
             compliance = Compliance.getComplianceByName(c.strip())
             recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
-        
-        # link these compliances to this recipe
         recipe.compliances = recipeCompliances
         db.session.add_all(recipeCompliances)
+        
+        # handle ingredients
+        recipeIngredients = []
+        for i in form['ingredients'].strip().split('\n'):
+            recipeIngredients.append(RecipeIngredient.getRecipeIngredientFromText(i, recipe.id))
+            
+        recipe.ingredients = recipeIngredients
+        db.session.add_all(recipeIngredients)
+        
+        # handle instuctions
+        recipeInstructions = []
+        for i in form['instructions'].strip().split('\n'):
+            recipeInstructions.append(RecipeInstruction(recipe.id, i.strip()))
+        recipe.instructions = recipeInstructions
+        db.session.add_all(recipeInstructions)
+        
+        # handle log
+        recipe.log = []
+        
+        # handle recipe
         db.session.add(recipe)
         db.session.commit()
-        
-        # student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
-
-        # tmpClubs = []
-        # for newclub in request.form['clubs'].split(', '):
-        #     club = studentclubs(newclub, student)
-        #     tmpClubs.append(club)
-        # student.clubs.extend(tmpClubs)
-
-        # db.session.add(student)
-        # db.session.add_all(tmpClubs)
-        # db.session.add(student)
-        # db.session.commit()
 
         flash('Recipe was successfully added!')
         return show_all()
+        
     return render_template('addRecipe.html')
    
 # @app.route('/new', methods = ['GET', 'POST'])
