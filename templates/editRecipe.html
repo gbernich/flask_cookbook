@@ -1,0 +1,48 @@
+<html>
+<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="utf-8" http-equiv="encoding">
+    <meta name="viewport" content="width=device-width, initial-scale=0.95">
+    <link href="{{ url_for('static', filename='bootstrap.min.css') }}" rel="stylesheet" text="text/css">
+<title>Edit Recipe</title>
+</head>
+<body>
+<form method="post" action="">
+	<input type="text" name="name" placeholder="Recipe Name *" value="{{ recipe.name }}" maxlength="80" size="80" required><br><br>
+
+	<textarea cols="80" placeholder="Recipe Description *" rows="5" name="description" maxlength="250" required>{{ recipe.description }}</textarea><br><br>
+
+	<input type="text" name="servings" placeholder="Servings *"  value="{{ recipe.servings }}" size="10" pattern="[0-9]+" required>
+
+	<input type="text" name="prep_time" placeholder="Prep Time (min)"  value="{{ recipe.prep_time }}" size="15" pattern="[0-9]*" required>
+
+	<input type="text"  name="cook_time" placeholder="Cook Time (min)"  value="{{ recipe.cook_time }}" size="15" pattern="[0-9]*" required><br><br>
+
+	<input type="radio" name="hot_cold" value="HOT" checked /> <span>Hot</span>
+	<input type="radio" name="hot_cold" value="COLD"        /> <span>Cold</span><br><br>
+
+	<input type="radio" name="meal_type"    value="BREAKFAST"  checked /> <span>Breakfast</span>
+	<input type="radio" name="meal_type"    value="LUNCH"              /> <span>Lunch</span>
+	<input type="radio" name="meal_type"    value="DINNER"             /> <span>Dinner</span>
+	<input type="radio" name="meal_type"    value="DESSERT"            /> <span>Dessert</span><br><br>
+
+	<textarea cols="30" placeholder="Compliance: one per line" rows="5" name="compliances"></textarea><br><br>
+
+	<textarea cols="80" placeholder="Ingredient: amount, measurement, ingredient *" rows="10" name="ingredients" pattern="[0-9]+\s+[A-Za-z]+\s+[\,]{1}\s+[A-Za-z\s]+" required></textarea><br><br>
+
+	<textarea cols="80" placeholder="Instruction: one per line *" rows="10" name="instructions" required></textarea><br><br>
+
+	<input type="text" name="calories"      placeholder="Calories"          maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="total_fat"     placeholder="Total Fat (g)"     maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="saturated_fat" placeholder="Saturated Fat (g)" maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="cholesterol"   placeholder="Cholesterol (mg)"  maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="sodium"        placeholder="Sodium (mg)"       maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="carbohydrates" placeholder="Carbohydrates (g)" maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="fiber"         placeholder="Fiber (g)"         maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="sugar"         placeholder="Sugar (g)"         maxlength="10" size="20" pattern="[0-9]*"><br>
+	<input type="text" name="protein"       placeholder="Protein (g)"       maxlength="10" size="20" pattern="[0-9]*"><br><br>
+
+	<button type="submit" name="submit">Submit</button>
+</form>
+</body>
+</html>
