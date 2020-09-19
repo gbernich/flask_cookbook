@@ -10,52 +10,68 @@ app.config['SECRET_KEY'] = "random string"
 db = SQLAlchemy(app)
 
 class Recipe(db.Model):
-   id          = db.Column(db.Integer, primary_key = True)
-   name        = db.Column(db.String(80), nullable=False)
-   description = db.Column(db.String(500), nullable=True)
-   servings    = db.Column(db.Integer, nullable=False)
-   prep_time   = db.Column(db.Integer, nullable=False)
-   cook_time   = db.Column(db.Integer, nullable=False)
-   total_time  = db.Column(db.Integer, nullable=False)
-   hot_cold    = db.Column(db.Enum("HOT", "COLD", name="hot_cold", create_type=False), nullable=False)
-   meal_type   = db.Column(db.Enum("BREAKFAST", "LUNCH", "DINNER", "DESSERT", name="meal_type", create_type=False), nullable=False)
+    id          = db.Column(db.Integer, primary_key = True)
+    name        = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(500), nullable=True)
+    servings    = db.Column(db.Integer, nullable=False)
+    prep_time   = db.Column(db.Integer, nullable=False)
+    cook_time   = db.Column(db.Integer, nullable=False)
+    total_time  = db.Column(db.Integer, nullable=False)
+    hot_cold    = db.Column(db.Enum("HOT", "COLD", name="hot_cold", create_type=False), nullable=False)
+    meal_type   = db.Column(db.Enum("BREAKFAST", "LUNCH", "DINNER", "DESSERT", name="meal_type", create_type=False), nullable=False)
    
-   calories      = db.Column(db.Integer, nullable=True)
-   total_fat     = db.Column(db.Integer, nullable=True)
-   saturated_fat = db.Column(db.Integer, nullable=True)
-   cholesterol   = db.Column(db.Integer, nullable=True)
-   sodium        = db.Column(db.Integer, nullable=True)
-   carbohydrates = db.Column(db.Integer, nullable=True)
-   fiber         = db.Column(db.Integer, nullable=True)
-   sugar         = db.Column(db.Integer, nullable=True)
-   protein       = db.Column(db.Integer, nullable=True)
+    calories      = db.Column(db.Integer, nullable=True)
+    total_fat     = db.Column(db.Integer, nullable=True)
+    saturated_fat = db.Column(db.Integer, nullable=True)
+    cholesterol   = db.Column(db.Integer, nullable=True)
+    sodium        = db.Column(db.Integer, nullable=True)
+    carbohydrates = db.Column(db.Integer, nullable=True)
+    fiber         = db.Column(db.Integer, nullable=True)
+    sugar         = db.Column(db.Integer, nullable=True)
+    protein       = db.Column(db.Integer, nullable=True)
 
-   compliances   = db.relationship('RecipeCompliance',  backref="Recipe")
-   ingredients   = db.relationship('RecipeIngredient',  backref="Recipe")
-   instructions  = db.relationship('RecipeInstruction', backref="Recipe")
-   logs          = db.relationship('RecipeLog',         backref="Recipe")
-   #   clubs = db.relationship('studentclubs', backref="students")#, lazy='dynamic')
+    compliances   = db.relationship('RecipeCompliance',  backref="Recipe")
+    ingredients   = db.relationship('RecipeIngredient',  backref="Recipe")
+    instructions  = db.relationship('RecipeInstruction', backref="Recipe")
+    logs          = db.relationship('RecipeLog',         backref="Recipe")
 
-   def __init__(self, name, description, servings, prep_time, cook_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
-      self.name          = name
-      self.description   = description
-      self.servings      = servings
-      self.prep_time     = prep_time
-      self.cook_time     = cook_time
-      self.total_time    = str(int(self.prep_time) + int(self.cook_time))
-      self.hot_cold      = hot_cold
-      self.meal_type     = meal_type
-      self.calories      = calories
-      self.total_fat     = total_fat
-      self.saturated_fat = saturated_fat
-      self.cholesterol   = cholesterol
-      self.sodium        = sodium
-      self.carbohydrates = carbohydrates
-      self.fiber         = fiber
-      self.sugar         = sugar
-      self.protein       = protein
-#      self.clubs = []
-
+    def __init__(self, name, description, servings, prep_time, cook_time, hot_cold, meal_type, calories, total_fat, saturated_fat, cholesterol, sodium, carbohydrates, fiber, sugar, protein):
+        self.name          = name
+        self.description   = description
+        self.servings      = servings
+        self.prep_time     = prep_time
+        self.cook_time     = cook_time
+        self.total_time    = str(int(self.prep_time) + int(self.cook_time))
+        self.hot_cold      = hot_cold
+        self.meal_type     = meal_type
+        self.calories      = calories
+        self.total_fat     = total_fat
+        self.saturated_fat = saturated_fat
+        self.cholesterol   = cholesterol
+        self.sodium        = sodium
+        self.carbohydrates = carbohydrates
+        self.fiber         = fiber
+        self.sugar         = sugar
+        self.protein       = protein
+    
+    def getComplianceBlob(self):
+        blob = ""
+        for rc in self.compliances:
+            blob += rc.compliance.name + '\n'
+        return blob[:-1] # remove last newline
+    
+    def getIngredientBlob(self):
+        blob = ""
+        for ri in self.ingredients:
+            blob += ri.getStringWithDelimiters() + '\n'
+        return blob[:-1] # remove last newline
+    
+    def getInstructionBlob(self):
+        blob = ""
+        for ri in self.instructions:
+            blob += ri.instruction + '\n'
+        return blob[:-1] # remove last newline
+        
 class Compliance(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50), nullable=True)
@@ -243,6 +259,12 @@ class RecipeIngredient(db.Model):
             
     def getString(self):
         return self.getAmountString() + " " + self.measure.name + " " + self.ingredient.name + " " + self.getPreparationString()
+            
+    def getStringWithDelimiters(self):
+        if (self.getPreparationString() == ""):
+            return self.getAmountString() + ", " + self.measure.name + ", " + self.ingredient.name
+        else:
+            return self.getAmountString() + ", " + self.measure.name + ", " + self.ingredient.name + ", " + self.preparation.name
         
 class RecipeInstruction(db.Model):
     id          = db.Column(db.Integer, primary_key = True)

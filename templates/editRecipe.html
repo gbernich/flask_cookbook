@@ -18,29 +18,29 @@
 
 	<input type="text"  name="cook_time" placeholder="Cook Time (min)"  value="{{ recipe.cook_time }}" size="15" pattern="[0-9]*" required><br><br>
 
-	<input type="radio" name="hot_cold" value="HOT" checked /> <span>Hot</span>
-	<input type="radio" name="hot_cold" value="COLD"        /> <span>Cold</span><br><br>
+	<input type="radio" name="hot_cold" value="HOT" {% if recipe.hot_cold == "HOT" %} checked {% endif %} /> <span>Hot</span>
+	<input type="radio" name="hot_cold" value="COLD" {% if recipe.hot_cold == "COLD" %} checked {% endif %}/> <span>Cold</span><br><br>
 
-	<input type="radio" name="meal_type"    value="BREAKFAST"  checked /> <span>Breakfast</span>
-	<input type="radio" name="meal_type"    value="LUNCH"              /> <span>Lunch</span>
-	<input type="radio" name="meal_type"    value="DINNER"             /> <span>Dinner</span>
-	<input type="radio" name="meal_type"    value="DESSERT"            /> <span>Dessert</span><br><br>
+	<input type="radio" name="meal_type"    value="BREAKFAST" {% if recipe.meal_type == "BREAKFAST" %} checked {% endif %}/> <span>Breakfast</span>
+	<input type="radio" name="meal_type"    value="LUNCH"     {% if recipe.meal_type == "LUNCH" %} checked {% endif %}/> <span>Lunch</span>
+	<input type="radio" name="meal_type"    value="DINNER"    {% if recipe.meal_type == "DINNER" %} checked {% endif %}/> <span>Dinner</span>
+	<input type="radio" name="meal_type"    value="DESSERT"   {% if recipe.meal_type == "DESSERT" %} checked {% endif %}/> <span>Dessert</span><br><br>
 
-	<textarea cols="30" placeholder="Compliance: one per line" rows="5" name="compliances"></textarea><br><br>
+	<textarea cols="30" placeholder="Compliance: one per line" rows="5" name="compliances">{{ recipe.getComplianceBlob() }}</textarea><br><br>
 
-	<textarea cols="80" placeholder="Ingredient: amount, measurement, ingredient *" rows="10" name="ingredients" pattern="[0-9]+\s+[A-Za-z]+\s+[\,]{1}\s+[A-Za-z\s]+" required></textarea><br><br>
+	<textarea cols="80" placeholder="Ingredient: amount, measurement, ingredient *" rows="10" name="ingredients" pattern="[0-9]+\s+[A-Za-z]+\s+[\,]{1}\s+[A-Za-z\s]+" required>{{ recipe.getIngredientBlob() }}</textarea><br><br>
 
-	<textarea cols="80" placeholder="Instruction: one per line *" rows="10" name="instructions" required></textarea><br><br>
+	<textarea cols="80" placeholder="Instruction: one per line *" rows="10" name="instructions" required>{{ recipe.getInstructionBlob() }}</textarea><br><br>
 
-	<input type="text" name="calories"      placeholder="Calories"          maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="total_fat"     placeholder="Total Fat (g)"     maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="saturated_fat" placeholder="Saturated Fat (g)" maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="cholesterol"   placeholder="Cholesterol (mg)"  maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="sodium"        placeholder="Sodium (mg)"       maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="carbohydrates" placeholder="Carbohydrates (g)" maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="fiber"         placeholder="Fiber (g)"         maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="sugar"         placeholder="Sugar (g)"         maxlength="10" size="20" pattern="[0-9]*"><br>
-	<input type="text" name="protein"       placeholder="Protein (g)"       maxlength="10" size="20" pattern="[0-9]*"><br><br>
+	<input type="text" name="calories"      placeholder="Calories"          maxlength="10" size="20" pattern="[0-9]*" {% if recipe.calories %} value="{{ recipe.calories }}" {% endif%}><br>
+	<input type="text" name="total_fat"     placeholder="Total Fat (g)"     maxlength="10" size="20" pattern="[0-9]*" {% if recipe.total_fat %} value="{{ recipe.total_fat }}" {% endif%}><br>
+	<input type="text" name="saturated_fat" placeholder="Saturated Fat (g)" maxlength="10" size="20" pattern="[0-9]*" {% if recipe.saturated_fat %} value="{{ recipe.saturated_fat }}" {% endif%}><br>
+	<input type="text" name="cholesterol"   placeholder="Cholesterol (mg)"  maxlength="10" size="20" pattern="[0-9]*" {% if recipe.cholesterol %} value="{{ recipe.cholesterol }}" {% endif%}><br>
+	<input type="text" name="sodium"        placeholder="Sodium (mg)"       maxlength="10" size="20" pattern="[0-9]*" {% if recipe.sodium %} value="{{ recipe.sodium }}" {% endif%}><br>
+	<input type="text" name="carbohydrates" placeholder="Carbohydrates (g)" maxlength="10" size="20" pattern="[0-9]*" {% if recipe.carbohydrates %} value="{{ recipe.carbohydrates }}" {% endif%}><br>
+	<input type="text" name="fiber"         placeholder="Fiber (g)"         maxlength="10" size="20" pattern="[0-9]*" {% if recipe.fiber %} value="{{ recipe.fiber }}" {% endif%}><br>
+	<input type="text" name="sugar"         placeholder="Sugar (g)"         maxlength="10" size="20" pattern="[0-9]*" {% if recipe.sugar %} value="{{ recipe.sugar }}" {% endif%}><br>
+	<input type="text" name="protein"       placeholder="Protein (g)"       maxlength="10" size="20" pattern="[0-9]*" {% if recipe.protein %} value="{{ recipe.protein }}" {% endif%}><br><br>
 
 	<button type="submit" name="submit">Submit</button>
 </form>
