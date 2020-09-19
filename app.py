@@ -374,48 +374,56 @@ def edit():
         form = {}
         for field in request.form:
             form[field] = request.form[field].strip()
-            if(form[field] == ''):
+            if (form[field] == '' or form[field] == 'None'):
                 form[field] = None
         
+        # Get recipe object from database
         id = request.args.get('id')
         recipe = Recipe.query.filter_by(id=id).first()
-        recipe.name = form['name']
         
-        # # Create recipe object
-        # recipe = Recipe(form['name'], form['description'], \
-        #                 form['servings'], form['prep_time'], \
-        #                 form['cook_time'], form['hot_cold'], \
-        #                 form['meal_type'], form['calories'], \
-        #                 form['total_fat'], form['saturated_fat'], \
-        #                 form['cholesterol'], form['sodium'], \
-        #                 form['carbohydrates'], form['fiber'], \
-        #                 form['sugar'], form['protein'])
+        # Update fields
+        recipe.name          = form['name']
+        recipe.description   = form['description']
+        recipe.servings      = form['servings']
+        recipe.prep_time     = form['prep_time']
+        recipe.cook_time     = form['cook_time']
+        recipe.total_time    = str(int(recipe.prep_time) + int(recipe.cook_time))
+        recipe.hot_cold      = form['hot_cold']
+        recipe.meal_type     = form['meal_type']
+        recipe.calories      = form['calories']
+        recipe.total_fat     = form['total_fat']
+        recipe.saturated_fat = form['saturated_fat']
+        recipe.cholesterol   = form['cholesterol']
+        recipe.sodium        = form['sodium']
+        recipe.carbohydrates = form['carbohydrates']
+        recipe.fiber         = form['fiber']
+        recipe.sugar         = form['sugar']
+        recipe.protein       = form['protein']
 
-        # # handle compliances
-        # recipeCompliances = []
-        # for c in form['compliances'].strip().lower().split('\n'):
-        #     compliance = Compliance.getComplianceByName(c.strip())
-        #     recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
-        # recipe.compliances = recipeCompliances
-        # db.session.add_all(recipeCompliances)
+        # update recipe compliances by removing existing RecipeCompliances and re-adding 
+        RecipeCompliance.query.filter_by(recipe_id=id).delete()
+        recipeCompliances = []
+        for c in form['compliances'].strip().lower().split('\n'):
+            compliance = Compliance.getComplianceByName(c.strip())
+            recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
+        recipe.compliances = recipeCompliances
+        db.session.add_all(recipeCompliances)
         
-        # # handle ingredients
-        # recipeIngredients = []
-        # for i in form['ingredients'].strip().split('\n'):
-        #     recipeIngredients.append(RecipeIngredient.getRecipeIngredientFromText(i, recipe.id))
-            
-        # recipe.ingredients = recipeIngredients
-        # db.session.add_all(recipeIngredients)
+        # update recipe ingredients by removing existing RecipeIngredients and re-adding
+        RecipeIngredient.query.filter_by(recipe_id=id).delete()
+        recipeIngredients = []
+        for i in form['ingredients'].strip().split('\n'):
+            recipeIngredients.append(RecipeIngredient.getRecipeIngredientFromText(i, recipe.id))
+        recipe.ingredients = recipeIngredients
+        db.session.add_all(recipeIngredients)
         
-        # # handle instuctions
-        # recipeInstructions = []
-        # for i in form['instructions'].strip().split('\n'):
-        #     recipeInstructions.append(RecipeInstruction(recipe.id, i.strip()))
-        # recipe.instructions = recipeInstructions
-        # db.session.add_all(recipeInstructions)
-        
-        # # handle log
-        # #recipe.log = []
+        # update recipe instuctions by removing existing RecipeInstructions and re-adding
+        RecipeInstruction.query.filter_by(recipe_id=id).delete()
+        recipeInstructions = []
+        for i in form['instructions'].strip().split('\n'):
+            recipeInstructions.append(RecipeInstruction(recipe.id, i.strip()))
+        recipe.instructions = recipeInstructions
+        db.session.add_all(recipeInstructions)
         
         # handle recipe
         #db.session.add(recipe)
