@@ -377,44 +377,48 @@ def edit():
             if(form[field] == ''):
                 form[field] = None
         
-        # Create recipe object
-        recipe = Recipe(form['name'], form['description'], \
-                        form['servings'], form['prep_time'], \
-                        form['cook_time'], form['hot_cold'], \
-                        form['meal_type'], form['calories'], \
-                        form['total_fat'], form['saturated_fat'], \
-                        form['cholesterol'], form['sodium'], \
-                        form['carbohydrates'], form['fiber'], \
-                        form['sugar'], form['protein'])
+        id = request.args.get('id')
+        recipe = Recipe.query.filter_by(id=id).first()
+        recipe.name = form['name']
+        
+        # # Create recipe object
+        # recipe = Recipe(form['name'], form['description'], \
+        #                 form['servings'], form['prep_time'], \
+        #                 form['cook_time'], form['hot_cold'], \
+        #                 form['meal_type'], form['calories'], \
+        #                 form['total_fat'], form['saturated_fat'], \
+        #                 form['cholesterol'], form['sodium'], \
+        #                 form['carbohydrates'], form['fiber'], \
+        #                 form['sugar'], form['protein'])
 
-        # handle compliances
-        recipeCompliances = []
-        for c in form['compliances'].strip().lower().split('\n'):
-            compliance = Compliance.getComplianceByName(c.strip())
-            recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
-        recipe.compliances = recipeCompliances
-        db.session.add_all(recipeCompliances)
+        # # handle compliances
+        # recipeCompliances = []
+        # for c in form['compliances'].strip().lower().split('\n'):
+        #     compliance = Compliance.getComplianceByName(c.strip())
+        #     recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
+        # recipe.compliances = recipeCompliances
+        # db.session.add_all(recipeCompliances)
         
-        # handle ingredients
-        recipeIngredients = []
-        for i in form['ingredients'].strip().split('\n'):
-            recipeIngredients.append(RecipeIngredient.getRecipeIngredientFromText(i, recipe.id))
+        # # handle ingredients
+        # recipeIngredients = []
+        # for i in form['ingredients'].strip().split('\n'):
+        #     recipeIngredients.append(RecipeIngredient.getRecipeIngredientFromText(i, recipe.id))
             
-        recipe.ingredients = recipeIngredients
-        db.session.add_all(recipeIngredients)
+        # recipe.ingredients = recipeIngredients
+        # db.session.add_all(recipeIngredients)
         
-        # handle instuctions
-        recipeInstructions = []
-        for i in form['instructions'].strip().split('\n'):
-            recipeInstructions.append(RecipeInstruction(recipe.id, i.strip()))
-        recipe.instructions = recipeInstructions
-        db.session.add_all(recipeInstructions)
+        # # handle instuctions
+        # recipeInstructions = []
+        # for i in form['instructions'].strip().split('\n'):
+        #     recipeInstructions.append(RecipeInstruction(recipe.id, i.strip()))
+        # recipe.instructions = recipeInstructions
+        # db.session.add_all(recipeInstructions)
         
-        # handle log
-        recipe.log = []
+        # # handle log
+        # #recipe.log = []
         
         # handle recipe
-        db.session.add(recipe)
+        #db.session.add(recipe)
         db.session.commit()
 
         flash('Recipe was successfully added!')
