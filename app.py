@@ -72,6 +72,26 @@ class Recipe(db.Model):
             blob += ri.instruction + '\n'
         return blob[:-1] # remove last newline
         
+    def filterRecipesByIngredients(recipes, ingredients):
+        numIngredients  = len(ingredients)
+        matchingRecipes = []
+        
+        for recipe in recipes:
+            count = 0
+            for ri in recipe.ingredients:
+                recipeIngredient = ri.ingredient.name
+                for filterIngredient in ingredients:
+                    if (filterIngredient == recipeIngredient):
+                        count += 1
+                        if (count == numIngredients):
+                            matchingRecipes.append(recipe)
+                            break
+                if (count == numIngredients):
+                    break
+            
+        return matchingRecipes
+                            
+        
 class Compliance(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(50), nullable=True)
@@ -352,9 +372,11 @@ def show_all():
             # no filters selected, show all
             recipes = Recipe.query.all()
             
-        #recipes = Recipe.query.filter(eval(' | '.join(hot_cold))).filter(eval(' | '.join(meal_type)))
-        
-        # q = session.query(User).filter(User.name == 'fred')
+            # filter by ingredient
+        ingredients = [x.strip().lower() for x in request.form['ingredients'].split(',')]
+        if (len(ingredients) > 0):
+            recipes = Recipe.filterRecipesByIngredients(recipes, ingredients)
+            
         
         return render_template('index.html', recipes = recipes, filters = filters)
         
@@ -460,9 +482,10 @@ def edit():
         # update recipe compliances by removing existing RecipeCompliances and re-adding 
         RecipeCompliance.query.filter_by(recipe_id=id).delete()
         recipeCompliances = []
-        for c in form['compliances'].strip().lower().split('\n'):
-            compliance = Compliance.getComplianceByName(c.strip())
-            recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
+        if (form['compliances'] != None):
+            for c in form['compliances'].strip().lower().split('\n'):
+                compliance = Compliance.getComplianceByName(c.strip())
+                recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
         recipe.compliances = recipeCompliances
         db.session.add_all(recipeCompliances)
         
@@ -487,7 +510,11 @@ def edit():
         db.session.commit()
 
         flash('Recipe was successfully added!')
-        return show_all()
+        recipes = Recipe.query.all()
+        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
+                   'meal_type_dinner':'', 'meal_type_dessert':''}
+        return render_template('index.html', recipes = recipes, filters = filters)
     # End if
     # GET Method
     id         = request.args.get('id')
