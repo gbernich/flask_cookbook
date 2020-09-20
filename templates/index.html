@@ -79,38 +79,36 @@ function updateTable() {
 
 </script>  -->
 </head>
-<!-- <body style="margin-left:0; padding:10">
-	<h3>Meal Categories</h3>
+<body style="margin-left:0; padding:10">
+<!-- 	<h3>Meal Categories</h3>
 	<table>
-	<tr><td><input name="hot_cold"            type="checkbox" value="hot_cold='HOT'"           onclick="updateTable();"/>Hot</td>
-	    <td><input name="hot_cold"            type="checkbox" value="hot_cold='COLD'"          onclick="updateTable();"/>Cold</td></tr>
+	<tr><td><input name="hot_cold" type="checkbox" value="hot_cold='HOT'"/>Hot</td>
+	    <td><input name="hot_cold" type="checkbox" value="hot_cold='COLD'"          onclick="updateTable();"/>Cold</td></tr>
 	<tr><td><input name="meal_type"           type="checkbox" value="meal_type='BREAKFAST'"    onclick="updateTable();"/>Breakfast</td>
 	    <td><input name="meal_type"           type="checkbox" value="meal_type='LUNCH'"        onclick="updateTable();"/>Lunch</td>
 	    <td><input name="meal_type"           type="checkbox" value="meal_type='DINNER'"       onclick="updateTable();"/>Dinner</td>
 	    <td><input name="meal_type"           type="checkbox" value="meal_type='DESSERT'"      onclick="updateTable();"/>Dessert</td></tr>
-	</table>
-
-<?php 
-    include 'util.php';
+	</table> -->
+<form method="post" action="">
     
-    // Create connection
-    $conn = connect();
+	<input type="checkbox" name="hot_cold_hot" {{ filters['hot_cold_hot'] }} /> <span>Hot</span>
+	<input type="checkbox" name="hot_cold_cold" {{ filters['hot_cold_cold'] }} /> <span>Cold</span><br><br>
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+	<input type="checkbox" name="meal_type_breakfast" {{ filters['meal_type_breakfast'] }} /> <span>Breakfast</span>
+	<input type="checkbox" name="meal_type_lunch"     {{ filters['meal_type_lunch'] }} /> <span>Lunch</span>
+	<input type="checkbox" name="meal_type_dinner"    {{ filters['meal_type_dinner'] }} /> <span>Dinner</span>
+	<input type="checkbox" name="meal_type_dessert"   {{ filters['meal_type_dessert'] }} /> <span>Dessert</span><br><br>
+	
+    <button type="submit" name="submit">Apply Filters</button>
+</form>
 
-    // Get checkboxes
-    display_compliance_checkboxes($conn);
-    display_ingredient_checkboxes($conn);
-
-    $conn->close();
-?> 
-
-<br></br> -->
+<br><br>
 
 <a target="_blank" href="{{ url_for('.add') }}">Add Recipe</a><br>
+
+<div>
+    
+</div>
 
 <div id="recipeTable">
     <table>

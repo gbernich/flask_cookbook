@@ -298,10 +298,67 @@ class RecipeLog(db.Model):
 #       self.club = club
 #       self.student = student
 
-@app.route('/')
+@app.route('/', methods = ['GET', 'POST'])
 def show_all():
-    recipes = Recipe.query.all()
-    return render_template('index.html', recipes = recipes )
+    if (request.method == 'GET'):
+        # Show all recipes
+        recipes = Recipe.query.all()
+        
+        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
+                   'meal_type_dinner':'', 'meal_type_dessert':''}
+        
+        return render_template('index.html', recipes = recipes, filters = filters)
+    
+    else:
+        # Filter based on form inputs
+        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
+                   'meal_type_dinner':'', 'meal_type_dessert':''}
+        
+        # Create query based on filters
+        hot_cold = []
+        if ('hot_cold_hot' in request.form):
+            hot_cold.append("(Recipe.hot_cold == 'HOT')")
+            filters['hot_cold_hot'] = 'checked'
+        if ('hot_cold_cold' in request.form):
+            hot_cold.append("(Recipe.hot_cold == 'COLD')")
+            filters['hot_cold_cold'] = 'checked'
+        
+        meal_type = []
+        if ('meal_type_breakfast' in request.form):
+            meal_type.append("(Recipe.meal_type == 'BREAKFAST')")
+            filters['meal_type_breakfast'] = 'checked'
+        if ('meal_type_lunch' in request.form):
+            meal_type.append("(Recipe.meal_type == 'LUNCH')")
+            filters['meal_type_lunch'] = 'checked'
+        if ('meal_type_dinner' in request.form):
+            meal_type.append("(Recipe.meal_type == 'DINNER')")
+            filters['meal_type_dinner'] = 'checked'
+        if ('meal_type_dessert' in request.form):
+            meal_type.append("(Recipe.meal_type == 'DESSERT')")
+            filters['meal_type_dessert'] = 'checked'
+        
+        criteria = ''
+        if (len(hot_cold) > 0):
+            recipes = Recipe.query.filter(eval(' | '.join(hot_cold)))
+            if (len(meal_type) > 0):
+                recipes = recipes.filter(eval(' | '.join(meal_type)))
+        
+        elif (len(meal_type) > 0):
+            recipes = Recipe.query.filter(eval(' | '.join(meal_type)))
+            
+        else:
+            # no filters selected, show all
+            recipes = Recipe.query.all()
+            
+        #recipes = Recipe.query.filter(eval(' | '.join(hot_cold))).filter(eval(' | '.join(meal_type)))
+        
+        # q = session.query(User).filter(User.name == 'fred')
+        
+        return render_template('index.html', recipes = recipes, filters = filters)
+        
+        
 
 @app.route('/display')
 def display():
@@ -436,29 +493,6 @@ def edit():
     id         = request.args.get('id')
     recipe     = Recipe.query.get(id)
     return render_template('editRecipe.html', recipe = recipe)
-   
-# @app.route('/new', methods = ['GET', 'POST'])
-# def new():
-#    if request.method == 'POST':
-#       if not request.form['name'] or not request.form['city'] or not request.form['addr']:
-#          flash('Please enter all the fields', 'error')
-#       else:
-#          student = students(request.form['name'], request.form['city'], request.form['addr'], request.form['pin'])
-
-#          tmpClubs = []
-#          for newclub in request.form['clubs'].split(', '):
-#             club = studentclubs(newclub, student)
-#             tmpClubs.append(club)
-#          student.clubs.extend(tmpClubs)
-
-#          db.session.add(student)
-#          db.session.add_all(tmpClubs)
-#          db.session.add(student)
-#          db.session.commit()
-
-#          flash('Record was successfully added')
-#          return redirect(url_for('show_all'))
-#    return render_template('new.html')
 
 if __name__ == '__main__':
    db.create_all()
