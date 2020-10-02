@@ -1,8 +1,8 @@
-from flask import Flask, request, flash, url_for, redirect, render_template
+from flask import Flask, request, flash, url_for, redirect, render_template, make_response
 from flask_sqlalchemy import SQLAlchemy
 import re
 import math
-
+import json
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
@@ -336,13 +336,21 @@ class RecipeIngredient(db.Model):
     def __mul__(self, other):
         # RecipeIngredient * scalar
         whole, num, den = RecipeIngredient.quantize(float(other) * self.getDecimal())
-        return RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den)
+        new = RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den)
+        new.ingredient  = self.ingredient
+        new.measure     = self.measure
+        new.preparation = self.preparation
+        return new
         
     def __add__(self, other):
         # RecipeIngredient + RecipeIngredient
         whole, num, den = RecipeIngredient.quantize(self.getDecimal() + other.getDecimal())
-        return RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den) 
-        
+        new = RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den) 
+        new.ingredient  = self.ingredient
+        new.measure     = self.measure
+        new.preparation = self.preparation
+        return new
+    
         
 class RecipeInstruction(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
@@ -435,7 +443,6 @@ def show_all():
         if (len(ingredients) > 0):
             recipes = Recipe.filterRecipesByIngredients(recipes, ingredients)
             
-        
         return render_template('index.html', recipes = recipes, filters = filters)
         
         
@@ -451,9 +458,68 @@ def display():
         return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = multiplier )
     else:
         # POST
+        multiplier = request.form['multiplier']
         if request.form['btn'] == 'Multiply':
-            multiplier = request.form['multiplier']
             return render_template('displayLarge.html', recipe = recipe * float(multiplier), is_mobile = is_mobile, multiplier = multiplier )
+        elif request.form['btn'] == 'List':
+            # append this recipe and multiplier to cookie
+            cookie = request.cookies.get('shoppingListJSON')
+            if cookie:
+                shoppingList = json.loads(cookie)
+                shoppingList['recipes'].append({'recipe_id': id, 'recipe_name': recipe.name, 'multiplier': multiplier})
+            else:
+                shoppingList = {'recipes':[{'recipe_id': id, 'recipe_name': recipe.name, 'multiplier': multiplier}]}
+            
+        recipes = Recipe.query.all()
+        
+        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
+                   'meal_type_dinner':'', 'meal_type_dessert':''}
+        
+        resp = make_response(render_template('index.html', recipes = recipes, filters = filters))
+        resp.set_cookie('shoppingListJSON', json.dumps(shoppingList))
+        return resp
+
+@app.route('/list', methods = ['GET', 'POST'])
+def list():
+    if request.method == 'GET':
+        shoppingRecipes = json.loads(request.cookies.get('shoppingListJSON'))
+        
+        # Combine ingredients lists
+        ingredients = []
+        for recipeItem in shoppingRecipes['recipes']:
+            recipe = Recipe.query.get(recipeItem['recipe_id'])
+            print("\nRecipe: " + recipe.name + "   mult: " + recipeItem['multiplier'])
+            
+            # Loop through each ingredient
+            for ri in recipe.ingredients:
+                # Multiply ingredient
+                tmp = ri * recipeItem['multiplier']
+                
+                # Check if its in the list already
+                match = False
+                if len(ingredients) == 0:
+                    ingredients.append(tmp)
+                    print("first: " + ingredients[0].ingredient.name)
+                else:
+                    for idx in range(0, len(ingredients)):
+                        if (ri.ingredient_id == ingredients[idx].ingredient_id):
+                            match = True
+                            ingredients[idx] = ingredients[idx] + ri
+                            print("Adding to: " + ingredients[idx].ingredient.name)
+                            break
+                
+                    # Add new ingredient to list
+                    if (not match):
+                        ingredients.append(tmp)
+                        print("new: " + ingredients[-1].ingredient.name)
+        
+        return render_template('list.html', shoppingRecipes = shoppingRecipes, ingredients = ingredients)
+    else:
+        # POST 
+        resp = make_response(render_template('list.html', shoppingRecipes = None, ingredients = []))
+        resp.delete_cookie('shoppingListJSON')
+        return resp
 
 @app.route('/add', methods = ['GET', 'POST'])
 def add():
