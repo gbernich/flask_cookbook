@@ -8,36 +8,6 @@
 
 <body style="margin-left:0; padding:10">
 
-<!-- <?php
-    include 'util.php';
-
-    // Create connection
-    $conn = connect();
-
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Get Recipe Data
-    $id           = $_GET['id'];
-    $recipe       = query_recipe($conn, $id);
-    $compliances  = query_recipe_compliances($conn, $id);
-    $ingredients  = query_recipe_ingredients($conn, $id);
-    $instructions = query_recipe_instructions($conn, $id);
-    $log_entries  = query_recipe_log($conn, $id);
-
-    // New Log Entry
-    if(isset($_POST['submit']))
-    {
-        $sql    = "INSERT INTO RecipeLog (recipe_id, cook_date, notes) VALUES (".$id.", NOW(),'".$_POST['notes']."');";
-        $result = $conn->query($sql);
-        header("Refresh:0");
-    }
-
-    $conn->close();
-?> -->
-
 <div class="row">
     <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
     
@@ -61,6 +31,11 @@
             {% endfor %}
         </div><br>
 
+        <form method="post" action="">
+            <input type="text" name="multiplier" size="10" value="{{ multiplier }}" required>
+            <button type="submit" name="btn" value="Multiply" class="btn btn-primary">Multiply</button>
+        </form>
+        
         <h5>Serves {{ recipe.servings }}</h5>
         <h5>Prep Time {{ recipe.prep_time }} </h5>
         <h5>Cook Time {{ recipe.cook_time }} </h5>

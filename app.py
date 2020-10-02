@@ -1,6 +1,8 @@
 from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
 import re
+import math
+
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
@@ -54,6 +56,22 @@ class Recipe(db.Model):
         self.sugar         = sugar
         self.protein       = protein
     
+    def __mul__(self, multiplier):
+        # Create a dummy Recipe that won't be committed to the database
+        dummy = Recipe(self.name, self.description, int(self.servings * multiplier), self.prep_time, self.cook_time, self.hot_cold, self.meal_type, self.calories, self.total_fat, self.saturated_fat, self.cholesterol, self.sodium, self.carbohydrates, self.fiber, self.sugar, self.protein)
+        
+        dummy.compliances = self.compliances
+        dummy.instructions = self.instructions
+        dummy.logs = self.logs
+        
+        # Loop through ingredients
+        recipeIngredients = []
+        for ingredient in self.ingredients:
+            recipeIngredients.append(ingredient * multiplier)
+        dummy.ingredients = recipeIngredients
+        
+        return dummy
+        
     def getComplianceBlob(self):
         blob = ""
         for rc in self.compliances:
@@ -264,9 +282,9 @@ class RecipeIngredient(db.Model):
         return RecipeIngredient(recipeID, ingredient.id, measure.id, preparation.id, amountWhole, amountNum, amountDen)
             
     def getAmountString(self):
-        if (self.amount_numerator == 0 or self.amount_denominator == 0):
+        if (int(self.amount_numerator) == 0 or int(self.amount_denominator) == 0):
             return str(self.amount_whole)
-        elif (self.amount_whole == 0):
+        elif (int(self.amount_whole) == 0):
             return str(self.amount_numerator) + "/" + str(self.amount_denominator)
         else:
             return str(self.amount_whole) + " " + str(self.amount_numerator) + "/" + str(self.amount_denominator)
@@ -285,6 +303,46 @@ class RecipeIngredient(db.Model):
             return self.getAmountString() + ", " + self.measure.name + ", " + self.ingredient.name
         else:
             return self.getAmountString() + ", " + self.measure.name + ", " + self.ingredient.name + ", " + self.preparation.name
+            
+    def getDecimal(self):
+        if (float(self.amount_denominator) > 0):
+            return float(self.amount_whole) + float(self.amount_numerator) / float(self.amount_denominator)
+        else:
+            return float(self.amount_whole)
+            
+    def quantize(value):
+        nums = [ 0, 1, 1, 2, 1, 3, 1, 3, 5, 7, 1 ] 
+        dens = [ 1, 2, 3, 3, 4, 4, 8, 8, 8, 8, 1 ] 
+        
+        whole     = str(int(math.floor(value)))
+        remainder = float(value) - float(math.floor(value))
+        
+        # calculate error for each fraction
+        errors = []
+        for i in range(0, len(nums)):
+            errors.append(abs(remainder - (float(nums[i]) / float(dens[i]))))
+        
+        # return num/den for lowest error
+        num = nums[errors.index(min(errors))]
+        den = dens[errors.index(min(errors))]
+        
+        # set numerator and denominator to zero if they are both 1, this cleans up the displaying of the fraction
+        if (num == 1 and den == 1):
+            num = 0
+            den = 0
+        
+        return whole, num, den
+        
+    def __mul__(self, other):
+        # RecipeIngredient * scalar
+        whole, num, den = RecipeIngredient.quantize(float(other) * self.getDecimal())
+        return RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den)
+        
+    def __add__(self, other):
+        # RecipeIngredient + RecipeIngredient
+        whole, num, den = RecipeIngredient.quantize(self.getDecimal() + other.getDecimal())
+        return RecipeIngredient(self.recipe_id, self.ingredient_id, self.measure_id, self. preparation_id, whole, num, den) 
+        
         
 class RecipeInstruction(db.Model):
     id          = db.Column(db.Integer, primary_key = True)
@@ -382,12 +440,20 @@ def show_all():
         
         
 
-@app.route('/display')
+@app.route('/display', methods = ['GET', 'POST'])
 def display():
     id         = request.args.get('id')
-    is_mobile = request.args.get('is_mobile')
+    is_mobile  = request.args.get('is_mobile')
+    multiplier = request.args.get('multiplier')
     recipe     = Recipe.query.get(id)
-    return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile )
+    
+    if request.method == 'GET':
+        return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = multiplier )
+    else:
+        # POST
+        if request.form['btn'] == 'Multiply':
+            multiplier = request.form['multiplier']
+            return render_template('displayLarge.html', recipe = recipe * float(multiplier), is_mobile = is_mobile, multiplier = multiplier )
 
 @app.route('/add', methods = ['GET', 'POST'])
 def add():
