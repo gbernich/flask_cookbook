@@ -80,6 +80,12 @@ function updateTable() {
 </script>  -->
 </head>
 <body style="margin-left:0; padding:10">
+
+<div class="row">
+    <a href="/list" class="btn btn-primary" role="button" style="margin-left: 15px">Shopping List</a>
+<!--     <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Clear List</a> -->
+</div><br>
+    
 <!-- 	<h3>Meal Categories</h3>
 	<table>
 	<tr><td><input name="hot_cold" type="checkbox" value="hot_cold='HOT'"/>Hot</td>
@@ -89,6 +95,7 @@ function updateTable() {
 	    <td><input name="meal_type"           type="checkbox" value="meal_type='DINNER'"       onclick="updateTable();"/>Dinner</td>
 	    <td><input name="meal_type"           type="checkbox" value="meal_type='DESSERT'"      onclick="updateTable();"/>Dessert</td></tr>
 	</table> -->
+<h3>Filters</h3>
 <form method="post" action="">
     
 	<input type="checkbox" name="hot_cold_hot" {{ filters['hot_cold_hot'] }} /> <span>Hot</span>
@@ -104,8 +111,10 @@ function updateTable() {
     <button type="submit" name="submit">Apply Filters</button>
 </form>
 
-<br><br>
+<br>
 
+<h3>Recipes</h3>
+    
 <a target="_blank" href="{{ url_for('.add') }}">Add Recipe</a><br>
 
 <div>
@@ -114,7 +123,7 @@ function updateTable() {
 
 <div id="recipeTable">
     <table>
-        <tr><td>Recipe</td><td>Prep Time</td><td>Cook Time</td><td>Calories</td></tr>
+        <tr><td> </td><td>Prep Time</td><td>Cook Time</td><td>Calories</td></tr>
         {% for recipe in recipes %}
             <tr>
             <td><a href="{{ url_for('.display', id = recipe.id, is_mobile = 1, multiplier = 1.0) }}">{{ recipe.name }}</a></td>

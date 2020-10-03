@@ -332,6 +332,23 @@ class RecipeIngredient(db.Model):
             den = 0
         
         return whole, num, den
+    
+    def isCompatibleWith(self, other):
+        if (self.ingredient_id == other.ingredient_id): 
+            # ingredient matches
+            if (self.measure_id == other.measure_id):
+                # measurement matches
+                return True
+            # elif ():
+            #     # matches a compatible measurement type
+        else:
+            return False
+            
+    def hasSameIngredientAs(self, other):
+        if (self.ingredient_id == other.ingredient_id): 
+            return True
+        else:
+            return False
         
     def __mul__(self, other):
         # RecipeIngredient * scalar
@@ -470,19 +487,20 @@ def display():
             else:
                 shoppingList = {'recipes':[{'recipe_id': id, 'recipe_name': recipe.name, 'multiplier': multiplier}]}
             
-        recipes = Recipe.query.all()
+        # recipes = Recipe.query.all()
         
-        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
-                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':''}
+        # filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+        #            'meal_type_breakfast':'', 'meal_type_lunch':'', \
+        #            'meal_type_dinner':'', 'meal_type_dessert':''}
         
-        resp = make_response(render_template('index.html', recipes = recipes, filters = filters))
+        # resp = make_response(render_template('index.html', recipes = recipes, filters = filters))
+        resp = make_response(redirect(url_for('list')))
         resp.set_cookie('shoppingListJSON', json.dumps(shoppingList))
         return resp
 
 @app.route('/list', methods = ['GET', 'POST'])
 def list():
-    if request.method == 'GET':
+    if request.method == 'GET' and request.cookies.get('shoppingListJSON'):
         shoppingRecipes = json.loads(request.cookies.get('shoppingListJSON'))
         
         # Combine ingredients lists
@@ -497,20 +515,26 @@ def list():
                 tmp = ri * recipeItem['multiplier']
                 
                 # Check if its in the list already
-                match = False
+                added = False
                 if len(ingredients) == 0:
                     ingredients.append(tmp)
                     print("first: " + ingredients[0].ingredient.name)
                 else:
                     for idx in range(0, len(ingredients)):
-                        if (ri.ingredient_id == ingredients[idx].ingredient_id):
-                            match = True
+                        #if (ri.ingredient_id == ingredients[idx].ingredient_id):
+                        if (ri.isCompatibleWith(ingredients[idx])):
+                            added = True
                             ingredients[idx] = ingredients[idx] + ri
                             print("Adding to: " + ingredients[idx].ingredient.name)
                             break
+                        elif (ri.hasSameIngredientAs(ingredients[idx])):
+                            added = True
+                            ingredients.insert(idx+1, ri)
+                            print("Inserting: " + ingredients[idx].ingredient.name)
+                            break
                 
                     # Add new ingredient to list
-                    if (not match):
+                    if (not added):
                         ingredients.append(tmp)
                         print("new: " + ingredients[-1].ingredient.name)
         
