@@ -297,7 +297,10 @@ class RecipeIngredient(db.Model):
             
     def getString(self):
         return self.getAmountString() + " " + self.measure.name + " " + self.ingredient.name + " " + self.getPreparationString()
-            
+        
+    def getStringForShoppingList(self):
+        return self.ingredient.name + " " + self.getPreparationString() + " (" + self.getAmountString() + " " + self.measure.name + ")"
+        
     def getStringWithDelimiters(self):
         if (self.getPreparationString() == ""):
             return self.getAmountString() + ", " + self.measure.name + ", " + self.ingredient.name
@@ -341,8 +344,20 @@ class RecipeIngredient(db.Model):
                 return True
             # elif ():
             #     # matches a compatible measurement type
-        else:
-            return False
+            else:
+                # Attempt to just drop a trailing 's' to fix plural/singular issue
+                selfSingular  = self.measure.name
+                otherSingular = other.measure.name
+                
+                if (selfSingular[-1] == 's'):
+                    selfSingular = selfSingular[:-1]
+                if (otherSingular[-1] == 's'):
+                    otherSingular = otherSingular[:-1]
+                    
+                if (selfSingular == otherSingular):
+                    return True
+        # if we reach here, return False
+        return False
             
     def hasSameIngredientAs(self, other):
         if (self.ingredient_id == other.ingredient_id): 
@@ -507,7 +522,7 @@ def list():
         ingredients = []
         for recipeItem in shoppingRecipes['recipes']:
             recipe = Recipe.query.get(recipeItem['recipe_id'])
-            print("\nRecipe: " + recipe.name + "   mult: " + recipeItem['multiplier'])
+            #print("\nRecipe: " + recipe.name + "   mult: " + recipeItem['multiplier'])
             
             # Loop through each ingredient
             for ri in recipe.ingredients:
@@ -518,25 +533,25 @@ def list():
                 added = False
                 if len(ingredients) == 0:
                     ingredients.append(tmp)
-                    print("first: " + ingredients[0].ingredient.name)
+                    #print("first: " + ingredients[0].ingredient.name)
                 else:
                     for idx in range(0, len(ingredients)):
                         #if (ri.ingredient_id == ingredients[idx].ingredient_id):
                         if (ri.isCompatibleWith(ingredients[idx])):
                             added = True
                             ingredients[idx] = ingredients[idx] + ri
-                            print("Adding to: " + ingredients[idx].ingredient.name)
+                            #print("Adding to: " + ingredients[idx].ingredient.name)
                             break
                         elif (ri.hasSameIngredientAs(ingredients[idx])):
                             added = True
                             ingredients.insert(idx+1, ri)
-                            print("Inserting: " + ingredients[idx].ingredient.name)
+                            #print("Inserting: " + ingredients[idx].ingredient.name)
                             break
                 
                     # Add new ingredient to list
                     if (not added):
                         ingredients.append(tmp)
-                        print("new: " + ingredients[-1].ingredient.name)
+                        #print("new: " + ingredients[-1].ingredient.name)
         
         return render_template('list.html', shoppingRecipes = shoppingRecipes, ingredients = ingredients)
     else:
@@ -679,4 +694,4 @@ def edit():
 
 if __name__ == '__main__':
    db.create_all()
-   app.run(debug = True, host = '0.0.0.0')
+   app.run(debug=True, host='0.0.0.0')
