@@ -10,14 +10,10 @@
 
 <div class="row">
     <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
-<!--     <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Clear List</a> -->
-    <form method="post" action="">
-        <button type="submit" name="btn" value="Clear" class="btn btn-primary">Clear List</button>
-    </form>
 </div><br>
 
 
-<h2>Shopping List</h2><br>
+<h3>Shopping List</h3><br>
 <div class="row">
     
     <ul style='list-style-type: none; padding-left: 10'>
@@ -26,10 +22,15 @@
         {% endfor %}
     </ul>
     
+</div>
+
+<div class="row">
+    <form method="post" action="">
+        <button type="submit" name="btn" value="Clear" class="btn btn-danger" style="margin-left: 15px">Clear List</button>
+    </form>
 </div><br>
 
-
-<h3>Derived from Recipes</h3><br>
+<h4>Derived from</h4><br>
 <div class="row">
     
     <table class='table table-hover' style='table-layout: auto;'>
