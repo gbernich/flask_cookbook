@@ -1,5 +1,6 @@
 from flask import Flask, request, flash, url_for, redirect, render_template, make_response
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 import re
 import math
 import json
@@ -424,7 +425,8 @@ def show_all():
         
         filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
                    'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':''}
+                   'meal_type_dinner':'', 'meal_type_dessert':'', \
+                   'ingredients':''}
         
         return render_template('index.html', recipes = recipes, filters = filters)
     
@@ -432,8 +434,9 @@ def show_all():
         # Filter based on form inputs
         filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
                    'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':''}
-        
+                   'meal_type_dinner':'', 'meal_type_dessert':'', \
+                   'ingredients':''}
+        print(request.form)
         # Create query based on filters
         hot_cold = []
         if ('hot_cold_hot' in request.form):
@@ -470,11 +473,12 @@ def show_all():
             # no filters selected, show all
             recipes = Recipe.query.all()
             
-            # filter by ingredient
-        ingredients = [x.strip().lower() for x in request.form['ingredients'].split(',')]
-        if (len(ingredients) > 0):
-            recipes = Recipe.filterRecipesByIngredients(recipes, ingredients)
-            
+        # filter by ingredient    
+        if (len(request.form['ingredients'].strip()) > 0):
+            ingredients = [x.strip().lower() for x in request.form['ingredients'].split(',')]
+            if (len(ingredients) > 0):
+                recipes = Recipe.filterRecipesByIngredients(recipes, ingredients)
+                filters['ingredients'] = ', '.join(ingredients)
         return render_template('index.html', recipes = recipes, filters = filters)
         
         
@@ -506,7 +510,8 @@ def display():
         
         # filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
         #            'meal_type_breakfast':'', 'meal_type_lunch':'', \
-        #            'meal_type_dinner':'', 'meal_type_dessert':''}
+        #            'meal_type_dinner':'', 'meal_type_dessert':'', \
+        #            'ingredients':''}
         
         # resp = make_response(render_template('index.html', recipes = recipes, filters = filters))
         resp = make_response(redirect(url_for('list')))
@@ -684,7 +689,8 @@ def edit():
         recipes = Recipe.query.all()
         filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
                    'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':''}
+                   'meal_type_dinner':'', 'meal_type_dessert':'', \
+                   'ingredients':''}
         return render_template('index.html', recipes = recipes, filters = filters)
     # End if
     # GET Method
