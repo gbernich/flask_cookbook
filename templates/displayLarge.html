@@ -9,14 +9,16 @@
 <body style="margin-left:0; padding:10">
 
 <div class="row">
-    <a href="/" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
+    <a href="{{ url_for('.show_all') }}" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
     
     {% if is_mobile == "1" %}
-        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 0) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 0, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
     {% else %}
-        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 1) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 1, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
     {% endif %}
-    <a href='/edit?id={{ recipe.id }}' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
+    <a href="{{ url_for('.edit', id = recipe.id) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
+<!--    <a href='/edit?id={{ recipe.id }}' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
+-->
 </div>
 
 <div class="row">
@@ -45,8 +47,28 @@
     </div>
 </div>
 
+
+{% if is_mobile == "1" %}
 <div class="row">
-    
+    <div class="col"><br>
+        <ul style='list-style-type: none; padding-left: 0'>
+            {% for i in recipe.ingredients %}
+                <li>{{ i.getString() }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col"><br>
+        <ol style='padding-left: 15px'>
+            {% for i in recipe.instructions %}
+                <li>{{ i.instruction }}</li>
+            {% endfor %}
+        </ol>    
+    </div>    
+</div>
+{% else %}
+<div class="row">
     <div class="col-3"><br>
         <ul style='list-style-type: none; padding-left: 0'>
             {% for i in recipe.ingredients %}
@@ -54,21 +76,15 @@
             {% endfor %}
         </ul>
     </div>
-    
-{% if is_mobile == "1" %}
-</div>
-<div class="row">
-{% endif %}
-    
     <div class="col-8"><br>
         <ol style='padding-left: 15px'>
             {% for i in recipe.instructions %}
                 <li>{{ i.instruction }}</li>
             {% endfor %}
         </ol>    
-    </div>
-    
+    </div>    
 </div>
+{% endif %}
 
 <div class="row">
     <div class="col"><br>
