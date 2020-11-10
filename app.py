@@ -1,6 +1,7 @@
 from flask import Flask, request, flash, url_for, redirect, render_template, make_response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
+from datetime import date
 import re
 import math
 import json
@@ -494,9 +495,16 @@ def display():
         return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = multiplier )
     else:
         # POST
-        multiplier = request.form['multiplier']
+        
+        # get multiplier
+        if ('multiplier' in request.form):
+            multiplier = request.form['multiplier']
+        
+        # Handle Multiplier POST
         if request.form['btn'] == 'Multiply':
             return render_template('displayLarge.html', recipe = recipe * float(multiplier), is_mobile = is_mobile, multiplier = multiplier )
+            
+        # Handle Shopping List POST
         elif request.form['btn'] == 'List':
             # append this recipe and multiplier to cookie
             cookie = request.cookies.get('shoppingListJSON')
@@ -505,6 +513,31 @@ def display():
                 shoppingList['recipes'].append({'recipe_id': id, 'recipe_name': recipe.name, 'multiplier': multiplier})
             else:
                 shoppingList = {'recipes':[{'recipe_id': id, 'recipe_name': recipe.name, 'multiplier': multiplier}]}
+        
+        # Handle Log POST
+        elif request.form['btn'] == 'Log':
+            # log notes for this recipe
+            
+            # Clean form data
+            form = {}
+            if (request.form['notes'] == '' or request.form['notes'] == None):
+                notes = ""
+            else:
+                notes = request.form['notes'].strip()
+            
+            # Get recipe object from database
+            id = request.args.get('id')
+            recipe = Recipe.query.filter_by(id=id).first()
+        
+            # Create RecipeLog
+            newRecipeLog = RecipeLog(id, date.today(), notes)
+            db.session.add(newRecipeLog)
+            
+            # Update fields
+            recipe.logs.append(newRecipeLog)
+            db.session.commit()
+            
+            return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = "1.0" )
             
         # recipes = Recipe.query.all()
         
