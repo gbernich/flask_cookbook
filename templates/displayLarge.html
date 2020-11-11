@@ -91,7 +91,7 @@
         <table class='table table-hover' style='table-layout: auto;'>
         <tr><th>Date</th><th>Notes</th></tr>
             {% for log in recipe.logs %}
-                <tr><td>{{ log.cook_date }}</td><td>{{ log.notes }}</td></tr>
+                <tr><td style="white-space: nowrap;">{{ log.cook_date }}</td><td>{{ log.notes }}</td></tr>
             {% endfor %}
         </table>
     </div>
