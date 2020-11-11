@@ -622,11 +622,12 @@ def add():
 
         # handle compliances
         recipeCompliances = []
-        for c in form['compliances'].strip().lower().split('\n'):
-            compliance = Compliance.getComplianceByName(c.strip())
-            recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
-        recipe.compliances = recipeCompliances
-        db.session.add_all(recipeCompliances)
+        if (form['compliances'] != None):
+            for c in form['compliances'].strip().lower().split('\n'):
+                compliance = Compliance.getComplianceByName(c.strip())
+                recipeCompliances.append(RecipeCompliance(recipe.id, compliance.id))
+            recipe.compliances = recipeCompliances
+            db.session.add_all(recipeCompliances)
         
         # handle ingredients
         recipeIngredients = []
