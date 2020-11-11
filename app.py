@@ -6,6 +6,13 @@ import re
 import math
 import json
 
+
+# Constants
+FILTERS_DEFAULT = {'hot_cold_hot':'', 'hot_cold_cold':'', \
+                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
+                   'meal_type_dinner':'', 'meal_type_dessert':'', \
+                   'ingredients':''}
+
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://flask:python@localhost/flask_cookbook'
@@ -424,19 +431,13 @@ def show_all():
         # Show all recipes
         recipes = Recipe.query.all()
         
-        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
-                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':'', \
-                   'ingredients':''}
+        filters = FILTERS_DEFAULT
         
         return render_template('index.html', recipes = recipes, filters = filters)
     
     else:
         # Filter based on form inputs
-        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
-                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':'', \
-                   'ingredients':''}
+        filters = FILTERS_DEFAULT
         print(request.form)
         # Create query based on filters
         hot_cold = []
@@ -643,14 +644,16 @@ def add():
         db.session.add_all(recipeInstructions)
         
         # handle log
-        recipe.log = []
+        recipe.logs = []
         
         # handle recipe
         db.session.add(recipe)
         db.session.commit()
 
         flash('Recipe was successfully added!')
-        return show_all()
+        recipes = Recipe.query.all()
+        filters = FILTERS_DEFAULT
+        return render_template('index.html', recipes = recipes, filters = filters)
     # End if    
     return render_template('addRecipe.html')
 
@@ -720,10 +723,7 @@ def edit():
 
         flash('Recipe was successfully added!')
         recipes = Recipe.query.all()
-        filters = {'hot_cold_hot':'', 'hot_cold_cold':'', \
-                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':'', \
-                   'ingredients':''}
+        filters = FILTERS_DEFAULT
         return render_template('index.html', recipes = recipes, filters = filters)
     # End if
     # GET Method
