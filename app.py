@@ -265,19 +265,24 @@ class RecipeIngredient(db.Model):
         if (len(components) > 3):
             preparation = components[3].strip()
             
-        amountComponents = re.split('\s+|/', amount)
-        if (len(amountComponents) == 3):
-            amountWhole = int(amountComponents[0])
-            amountNum   = int(amountComponents[1])
-            amountDen   = int(amountComponents[2])
-        elif (len(amountComponents) == 2):
-            amountWhole = 0
-            amountNum   = int(amountComponents[0])
-            amountDen   = int(amountComponents[1])
+        if ('.' in amount):
+            # assume its a decimal value
+            amountWhole, amountNum, amountDen = RecipeIngredient.quantize(float(amount))
         else:
-            amountWhole = int(amountComponents[0])
-            amountNum   = 0
-            amountDen   = 0
+            # it's a whole number, fraction, or mixed
+            amountComponents = re.split('\s+|/', amount)
+            if (len(amountComponents) == 3):
+                amountWhole = int(amountComponents[0])
+                amountNum   = int(amountComponents[1])
+                amountDen   = int(amountComponents[2])
+            elif (len(amountComponents) == 2):
+                amountWhole = 0
+                amountNum   = int(amountComponents[0])
+                amountDen   = int(amountComponents[1])
+            else:
+                amountWhole = int(amountComponents[0])
+                amountNum   = 0
+                amountDen   = 0
             
         # handle measure
         measure = Measure.getMeasureByName(measure)
