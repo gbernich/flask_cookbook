@@ -15,16 +15,16 @@
 <h3>Filters</h3><br>
 <form method="post" action="">
     
-	<input type="checkbox" name="hot_cold_hot" {{ filters['hot_cold_hot'] }} /> <span>Hot</span>
-	<input type="checkbox" name="hot_cold_cold" {{ filters['hot_cold_cold'] }} /> <span>Cold</span><br><br>
+	<input type="checkbox" name="hot_cold_hot" {{ getCheckbox(filters, 'hot_cold_hot') }} /> <span>Hot</span>
+	<input type="checkbox" name="hot_cold_cold" {{ getCheckbox(filters, 'hot_cold_cold') }} /> <span>Cold</span><br><br>
 
-	<input type="checkbox" name="meal_type_breakfast" {{ filters['meal_type_breakfast'] }} /> <span>Breakfast</span>
-	<input type="checkbox" name="meal_type_lunch"     {{ filters['meal_type_lunch'] }} /> <span>Lunch</span>
-	<input type="checkbox" name="meal_type_dinner"    {{ filters['meal_type_dinner'] }} /> <span>Dinner</span>
+	<input type="checkbox" name="meal_type_breakfast" {{ getCheckbox(filters, 'meal_type_breakfast') }} /> <span>Breakfast</span>
+	<input type="checkbox" name="meal_type_lunch"     {{ getCheckbox(filters, 'meal_type_lunch') }} /> <span>Lunch</span>
+	<input type="checkbox" name="meal_type_dinner"    {{ getCheckbox(filters, 'meal_type_dinner') }} /> <span>Dinner</span>
 	<input type="checkbox" name="meal_type_dessert"   {{ getCheckbox(filters, 'meal_type_dessert') }} /> <span>Dessert</span><br><br>
     
     {% for compliance in compliances %}
-        <input type="checkbox" name="compliance_{{ compliance.name }}" /> <span>{{ compliance.name }}</span>
+        <input type="checkbox" name="compliance_{{ compliance.name }}" {{ getCheckbox(filters, 'compliance_' + compliance.name) }}/> <span>{{ compliance.name }}</span>
     {% endfor %}
 	<br><br>
     
@@ -55,6 +55,7 @@
             </tr>
         {% endfor %}
     </table>
+    <p>Showing {{ recipes | length }} results.</p>
 </div>
 
 </body>

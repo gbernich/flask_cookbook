@@ -8,10 +8,6 @@ import json
 
 
 # Constants
-FILTERS_DEFAULT = {'hot_cold_hot':'', 'hot_cold_cold':'', \
-                   'meal_type_breakfast':'', 'meal_type_lunch':'', \
-                   'meal_type_dinner':'', 'meal_type_dessert':'', \
-                   'ingredients':''}
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///students.sqlite3'
@@ -457,13 +453,11 @@ def show_all():
         # Get compliances
         compliances = Compliance.query.all()
         
-        filters = FILTERS_DEFAULT
-        
-        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = {})
     
     else:
         # Filter based on form inputs
-        filters = FILTERS_DEFAULT
+        filters = {}
         print(request.form)
         # Create query based on filters
         hot_cold = []
@@ -494,8 +488,8 @@ def show_all():
         # Loop through all RecipeCompliances, and see if a checkbox exists
         for compliance in allCompliances:
             complianceFormKey = 'compliance_' + compliance.name
-            print(complianceFormKey)
             if (complianceFormKey in request.form):
+                filters[complianceFormKey] = 'checked'
                 compliances.append(compliance)
         
         criteria = ''
@@ -694,8 +688,7 @@ def add():
         flash('Recipe was successfully added!')
         recipes = Recipe.query.all()
         compliances = Compliance.query.all()
-        filters = FILTERS_DEFAULT
-        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = {})
     # End if    
     return render_template('addRecipe.html')
 
@@ -766,14 +759,16 @@ def edit():
         flash('Recipe was successfully added!')
         recipes = Recipe.query.all()
         compliances = Compliance.query.all()
-        filters = FILTERS_DEFAULT
-        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = {})
     # End if
     # GET Method
     id         = request.args.get('id')
     recipe     = Recipe.query.get(id)
     return render_template('editRecipe.html', recipe = recipe)
 
+#############################
+## Jinja2 Helper Functions ##
+#############################
 def getCheckbox(dictionary, key):
     try:
          return dictionary[key]
@@ -781,9 +776,9 @@ def getCheckbox(dictionary, key):
         return ''
 
 app.jinja_env.globals.update(getCheckbox=getCheckbox)
+#############################
 
 
-###
 if __name__ == '__main__':
    db.create_all()
    app.run(debug=True, host='0.0.0.0')
