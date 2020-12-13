@@ -118,6 +118,24 @@ class Recipe(db.Model):
             
         return matchingRecipes
                             
+    def filterRecipesByCompliances(recipes, compliances):
+        matchingRecipes = []
+        
+        for recipe in recipes:
+            done = False
+            for rc in recipe.compliances:
+                recipeCompliance = rc.compliance.name
+                for objCompliance in compliances:
+                    filterCompliance = objCompliance.name
+                    if (filterCompliance == recipeCompliance):
+                        matchingRecipes.append(recipe)
+                        done = True
+                        break
+                if (done):
+                    break
+        
+        return matchingRecipes
+                    
         
 class Compliance(db.Model):
     id   = db.Column(db.Integer, primary_key = True)
@@ -436,9 +454,12 @@ def show_all():
         # Show all recipes
         recipes = Recipe.query.all()
         
+        # Get compliances
+        compliances = Compliance.query.all()
+        
         filters = FILTERS_DEFAULT
         
-        return render_template('index.html', recipes = recipes, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
     
     else:
         # Filter based on form inputs
@@ -467,6 +488,16 @@ def show_all():
             meal_type.append("(Recipe.meal_type == 'DESSERT')")
             filters['meal_type_dessert'] = 'checked'
         
+        compliances = []
+        allCompliances = Compliance.query.all()
+        
+        # Loop through all RecipeCompliances, and see if a checkbox exists
+        for compliance in allCompliances:
+            complianceFormKey = 'compliance_' + compliance.name
+            print(complianceFormKey)
+            if (complianceFormKey in request.form):
+                compliances.append(compliance)
+        
         criteria = ''
         if (len(hot_cold) > 0):
             recipes = Recipe.query.filter(eval(' | '.join(hot_cold)))
@@ -486,7 +517,10 @@ def show_all():
             if (len(ingredients) > 0):
                 recipes = Recipe.filterRecipesByIngredients(recipes, ingredients)
                 filters['ingredients'] = ', '.join(ingredients)
-        return render_template('index.html', recipes = recipes, filters = filters)
+        if (len(compliances) > 0):
+            print("Filtering by Compliance")
+            recipes = Recipe.filterRecipesByCompliances(recipes, compliances)
+        return render_template('index.html', recipes = recipes, compliances = allCompliances, filters = filters)
         
         
 
@@ -556,6 +590,7 @@ def display():
         resp = make_response(redirect(url_for('list')))
         resp.set_cookie('shoppingListJSON', json.dumps(shoppingList))
         return resp
+        
 
 @app.route('/list', methods = ['GET', 'POST'])
 def list():
@@ -658,8 +693,9 @@ def add():
 
         flash('Recipe was successfully added!')
         recipes = Recipe.query.all()
+        compliances = Compliance.query.all()
         filters = FILTERS_DEFAULT
-        return render_template('index.html', recipes = recipes, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
     # End if    
     return render_template('addRecipe.html')
 
@@ -729,14 +765,25 @@ def edit():
 
         flash('Recipe was successfully added!')
         recipes = Recipe.query.all()
+        compliances = Compliance.query.all()
         filters = FILTERS_DEFAULT
-        return render_template('index.html', recipes = recipes, filters = filters)
+        return render_template('index.html', recipes = recipes, compliances = compliances, filters = filters)
     # End if
     # GET Method
     id         = request.args.get('id')
     recipe     = Recipe.query.get(id)
     return render_template('editRecipe.html', recipe = recipe)
 
+def getCheckbox(dictionary, key):
+    try:
+         return dictionary[key]
+    except:
+        return ''
+
+app.jinja_env.globals.update(getCheckbox=getCheckbox)
+
+
+###
 if __name__ == '__main__':
    db.create_all()
    app.run(debug=True, host='0.0.0.0')
