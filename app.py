@@ -564,7 +564,7 @@ def display():
             recipe = Recipe.query.filter_by(id=id).first()
         
             # Create RecipeLog
-            newRecipeLog = RecipeLog(id, date.today(), notes)
+            newRecipeLog = RecipeLog(id, request.form['date'], notes)
             db.session.add(newRecipeLog)
             
             # Update fields
@@ -774,8 +774,11 @@ def getCheckbox(dictionary, key):
          return dictionary[key]
     except:
         return ''
-
 app.jinja_env.globals.update(getCheckbox=getCheckbox)
+        
+def todaysDate():
+    return date.today()
+app.jinja_env.globals.update(todaysDate=todaysDate)
 #############################
 
 

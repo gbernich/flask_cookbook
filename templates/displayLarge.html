@@ -103,8 +103,9 @@
 <h3>Log Entry</h3>
 
 <form method="post" action="">
-        <textarea cols="80" placeholder="Enter a note about your experience." rows="3" name="notes" maxlength="350" required></textarea><br><br>
-        <button type="submit" name="btn" value="Log" class="btn btn-primary">Put it in the books!</button>
+    <input type="text" name="date" size="12" placeholder="YYYY-MM-DD" value="{{ todaysDate() }}" pattern="\d{4}-\d{2}-\d{2}" required><br>
+    <textarea cols="80" placeholder="Enter a note about your experience." rows="3" name="notes" maxlength="350"></textarea><br><br>
+    <button type="submit" name="btn" value="Log" class="btn btn-primary">Put it in the books!</button>
 </form>
 
 </body>
