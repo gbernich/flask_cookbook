@@ -12,9 +12,9 @@
     <a href="{{ url_for('.show_all') }}" class="btn btn-primary" role="button" style="margin-left: 15px">Main Menu</a>
     
     {% if is_mobile == "1" %}
-        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 0, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+        <a href="{{ url_for('.display', id = id, is_mobile = 0, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
     {% else %}
-        <a href="{{ url_for('.display', id = recipe.id, is_mobile = 1, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
+        <a href="{{ url_for('.display', id = id, is_mobile = 1, multiplier = multiplier) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Switch View</a>
     {% endif %}
     <a href="{{ url_for('.edit', id = recipe.id) }}" class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>
 <!--    <a href='/edit?id={{ recipe.id }}' class='btn btn-primary' role='button' style='margin-left: 15px'>Edit Recipe</a>

@@ -526,7 +526,7 @@ def display():
     recipe     = Recipe.query.get(id)
     
     if request.method == 'GET':
-        return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = multiplier )
+        return render_template('displayLarge.html', recipe = recipe * float(multiplier), id = id, is_mobile = is_mobile, multiplier = multiplier )
     else:
         # POST
         
@@ -536,7 +536,7 @@ def display():
         
         # Handle Multiplier POST
         if request.form['btn'] == 'Multiply':
-            return render_template('displayLarge.html', recipe = recipe * float(multiplier), is_mobile = is_mobile, multiplier = multiplier )
+            return render_template('displayLarge.html', recipe = recipe * float(multiplier), id = id, is_mobile = is_mobile, multiplier = multiplier)
             
         # Handle Shopping List POST
         elif request.form['btn'] == 'List':
@@ -571,7 +571,7 @@ def display():
             recipe.logs.append(newRecipeLog)
             db.session.commit()
             
-            return render_template('displayLarge.html', recipe = recipe, is_mobile = is_mobile, multiplier = "1.0" )
+            return render_template('displayLarge.html', recipe = recipe, id = id, is_mobile = is_mobile, multiplier = "1.0" )
             
         # recipes = Recipe.query.all()
         
